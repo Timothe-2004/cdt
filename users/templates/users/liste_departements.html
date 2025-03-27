@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Départements{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Liste des Départements</h1>
+    <a href="{% url 'users:creer_departement' %}" class="btn btn-primary">Créer un Département</a>
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Code</th>
+                <th>Entité</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for departement in departements %}
+            <tr>
+                <td>{{ departement.nom }}</td>
+                <td>{{ departement.code }}</td>
+                <td>{{ departement.entite }}</td>
+                <td>
+                    <a href="{% url 'users:modifier_departement' departement.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                    <a href="{% url 'users:supprimer_departement' departement.id %}" class="btn btn-danger btn-sm">Supprimer</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil - Cahier de Texte Universitaire{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <h1 class="my-5">Bienvenue sur le Cahier de Texte Universitaire</h1>
+    <p class="lead">Connectez-vous pour accéder à vos cours, séances et statistiques.</p>
+    <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+        <i class="fas fa-sign-in-alt me-2"></i> Se connecter
+    </a>
+</div>
+{% endblock %}

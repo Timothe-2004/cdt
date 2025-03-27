@@ -1,0 +1,88 @@
+<!-- templates/seances/planifier_seance.html -->
+{% extends 'base.html' %}
+
+{% block title %}Planifier une Séance - Cahier de Texte Universitaire{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'accueil' %}">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'liste_seances' %}">Séances</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Planifier une séance</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-calendar-plus me-2"></i>
+                        Planifier une nouvelle séance
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="id_titre" class="form-label">Titre de la séance</label>
+                                <input type="text" name="titre" id="id_titre" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="id_cours" class="form-label">Cours</label>
+                                <select name="cours" id="id_cours" class="form-select" required>
+                                    <option value="" selected disabled>Sélectionnez un cours</option>
+                                    {% for cours in form.cours.field.queryset %}
+                                    <option value="{{ cours.id }}">{{ cours.titre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="id_description" class="form-label">Description</label>
+                                <textarea name="description" id="id_description" class="form-control" rows="3" required></textarea>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="id_contenu" class="form-label">Contenu</label>
+                                <textarea name="contenu" id="id_contenu" class="form-control" rows="5" required></textarea>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_date" class="form-label">Date</label>
+                                <input type="date" name="date" id="id_date" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="id_heure_debut" class="form-label">Heure de début</label>
+                                <input type="time" name="heure_debut" id="id_heure_debut" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="id_heure_fin" class="form-label">Heure de fin</label>
+                                <input type="time" name="heure_fin" id="id_heure_fin" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="id_salle" class="form-label">Salle</label>
+                                <input type="text" name="salle" id="id_salle" class="form-control">
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

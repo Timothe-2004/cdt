@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Affecter un Responsable de Classe{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Affecter un Responsable de Classe</h1>
+    <p>Classe : <strong>{{ classe.nom }}</strong></p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="responsable">Responsable :</label>
+            <select name="responsable" id="responsable" class="form-control">
+                {% for utilisateur in utilisateurs %}
+                <option value="{{ utilisateur.id }}">{{ utilisateur.get_full_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Affecter</button>
+        <a href="{% url 'users:liste_classes' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

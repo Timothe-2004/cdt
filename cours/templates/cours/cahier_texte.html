@@ -1,0 +1,62 @@
+<!-- templates/cours/cahier_texte.html -->
+{% extends 'base.html' %}
+
+{% block title %}Cahier de Texte - {{ cours.titre }} - Cahier de Texte Universitaire{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'accueil' %}">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cours:liste_cours' %}">Mes Cours</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'detail_cours' cours.id %}">{{ cours.titre }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Cahier de Texte</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">
+                <i class="fas fa-book-open me-2"></i>
+                Cahier de Texte - {{ cours.titre }}
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Titre</th>
+                            <th>Contenu</th>
+                            <th>Durée</th>
+                            <th>Salle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for seance in seances %}
+                        <tr>
+                            <td>{{ seance.date|date:"d/m/Y" }}</td>
+                            <td>{{ seance.titre }}</td>
+                            <td>{{ seance.contenu }}</td>
+                            <td>{{ seance.duree }} heures</td>
+                            <td>{{ seance.salle }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Aucune séance n'a encore été planifiée pour ce cours.
+                                </p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

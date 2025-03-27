@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Ajouter un Cours - Cahier de Texte Universitaire{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Ajouter un Cours</h1>
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a href="{% url 'cours:liste_cours' %}" class="btn btn-secondary">Annuler</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

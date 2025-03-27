@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Entités{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Liste des Entités</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Code</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entite in entites %}
+            <tr>
+                <td>{{ entite.nom }}</td>
+                <td>{{ entite.code }}</td>
+                <td>{{ entite.description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de Bord - Responsable de Classe{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Bienvenue, Responsable de Classe</h1>
+    <p>Remplissez les séances pour les cours de votre classe.</p>
+    <a href="{% url 'seances:liste_seances' %}" class="btn btn-primary">Gérer les Séances</a>
+</div>
+{% endblock %}

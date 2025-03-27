@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Séances</title>
+</head>
+<body>
+    <h1>Liste des Séances</h1>
+    <ul>
+        {% for seance in seances %}
+            <li>{{ seance.nom }} - {{ seance.date }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

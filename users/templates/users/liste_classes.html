@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Classes{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Liste des Classes</h1>
+    <a href="{% url 'users:creer_classe' %}" class="btn btn-primary">Créer une Classe</a>
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Département</th>
+                <th>Responsable</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for classe in classes %}
+            <tr>
+                <td>{{ classe.nom }}</td>
+                <td>{{ classe.departement.nom }}</td>
+                <td>{{ classe.responsable.get_full_name|default:"Non assigné" }}</td>
+                <td>
+                    <a href="{% url 'users:affecter_responsable_classe' classe.id %}" class="btn btn-warning btn-sm">Affecter Responsable</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

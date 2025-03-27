@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifier le Cours - {{ cours.nom }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Modifier le Cours</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+        <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

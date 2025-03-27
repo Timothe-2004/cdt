@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de Bord - Enseignant{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Bienvenue, Enseignant</h1>
+    <p>Consultez vos cours et l'historique des séances.</p>
+
+    <div class="card mt-4">
+        <div class="card-header bg-primary text-white">
+            <h3>Mes Cours</h3>
+        </div>
+        <div class="card-body">
+            <ul>
+                {% for cours in cours %}
+                <li>
+                    {{ cours.nom }} - <a href="{% url 'cours:cahier_texte' cours.id %}">Voir le cahier de texte</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

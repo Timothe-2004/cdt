@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de Bord - Directeur Académique{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Bienvenue, Directeur Académique</h1>
+    <p>Gérez les départements, les classes, les formations, et les cours.</p>
+    <a href="{% url 'users:liste_departements' %}" class="btn btn-primary">Gérer les Départements</a>
+    <a href="{% url 'users:liste_classes' %}" class="btn btn-secondary">Gérer les Classes</a>
+    <a href="{% url 'formations:liste_formations' %}" class="btn btn-primary">Gérer les Formations</a>
+    <a href="{% url 'cours:liste_cours' %}" class="btn btn-secondary">Gérer les Cours</a>
+</div>
+{% endblock %}

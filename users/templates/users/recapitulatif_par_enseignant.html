@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Récapitulatif par Enseignant{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Récapitulatif par Enseignant</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Enseignant</th>
+                <th>Total Heures</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for enseignant in enseignants %}
+            <tr>
+                <td>
+                    <a href="{% url 'users:details_seances_enseignant' enseignant.enseignant__id %}">
+                        {{ enseignant.enseignant__first_name }} {{ enseignant.enseignant__last_name }}
+                    </a>
+                </td>
+                <td>{{ enseignant.total_heures|floatformat:2 }} heures</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

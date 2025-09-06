@@ -14,54 +14,69 @@ class Seance(models.Model):
     
     classe = models.ForeignKey(Classe, on_delete=models.CASCADE, related_name='seances')
     cours = models.ForeignKey(Cours, on_delete=models.CASCADE, related_name='seances')
-    enseignant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seances_enseignant')
+    enseignant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seances')
     responsable_classe = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seances_responsable')
     date_seance = models.DateField()
     heure_debut = models.TimeField()
     heure_fin = models.TimeField()
     duree = models.DurationField(editable=False)
     description = models.TextField()
-    statut = models.CharField(max_length=10, choices=STATUT_CHOICES, default='brouillon')
+    statut = models.CharField(max_length=10, choices=STATUT_CHOICES, default='active')
     date_creation = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return f"{self.cours.nom} - {self.classe.nom} - {self.date_seance}"
     
     def save(self, *args, **kwargs):
+        # Associer automatiquement l'enseignant à partir du cours
+        if self.cours and not self.enseignant:
+            if self.cours.enseignant:
+                self.enseignant = self.cours.enseignant
+            else:
+                raise ValueError("Erreur : le cours sélectionné n’a pas d’enseignant associé.")
+
         # Calculer la durée automatiquement
         self.duree = datetime.combine(self.date_seance, self.heure_fin) - datetime.combine(self.date_seance, self.heure_debut)
+        
         super().save(*args, **kwargs)
+
     
     def clean(self):
         from django.core.exceptions import ValidationError
         from django.db.models import Q
-        
+
+        # ✅ Utiliser getattr pour éviter les erreurs si self.classe n'existe pas
+        classe = getattr(self, 'classe', None)
+        cours = getattr(self, 'cours', None)
+
+        if not classe or not cours:
+            return  # on arrête la validation s’il manque encore des données
+
         # Vérifier que le cours est bien affecté à la classe
-        if not self.cours.classes.filter(id=self.classe.id).exists():
+        if not cours.classes.filter(id=classe.id).exists():
             raise ValidationError("Le cours doit être affecté à la classe.")
-        
+
         # Vérifier les conflits d'horaires pour la classe
         chevauchements_classe = Seance.objects.filter(
-            classe=self.classe,
+            classe=classe,
             date_seance=self.date_seance
         ).exclude(id=self.id).filter(
             Q(heure_debut__lt=self.heure_fin, heure_fin__gt=self.heure_debut)
         )
-        
         if chevauchements_classe.exists():
             raise ValidationError("Cette classe a déjà une séance programmée sur ce créneau horaire.")
-        
+
         # Vérifier les conflits d'horaires pour l'enseignant
-        chevauchements_enseignant = Seance.objects.filter(
-            enseignant=self.enseignant,
-            date_seance=self.date_seance
-        ).exclude(id=self.id).filter(
-            Q(heure_debut__lt=self.heure_fin, heure_fin__gt=self.heure_debut)
-        )
-        
-        if chevauchements_enseignant.exists():
-            raise ValidationError("L'enseignant a déjà une séance programmée sur ce créneau horaire.")
-    
+        if self.enseignant:
+            chevauchements_enseignant = Seance.objects.filter(
+                enseignant=self.enseignant,
+                date_seance=self.date_seance
+            ).exclude(id=self.id).filter(
+                Q(heure_debut__lt=self.heure_fin, heure_fin__gt=self.heure_debut)
+            )
+            if chevauchements_enseignant.exists():
+                raise ValidationError("L'enseignant a déjà une séance programmée sur ce créneau horaire.")
+
     class Meta:
         verbose_name = "Séance"
         verbose_name_plural = "Séances"

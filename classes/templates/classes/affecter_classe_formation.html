@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Affecter une Classe à une Formation{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Affecter une Classe à une Formation</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="classe" class="form-label">Classe</label>
+            <select id="classe" name="classe" class="form-select">
+                {% for classe in classes %}
+                <option value="{{ classe.id }}">{{ classe.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="formation" class="form-label">Formation</label>
+            <select id="formation" name="formation" class="form-select">
+                {% for formation in formations %}
+                <option value="{{ formation.id }}">{{ formation.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Affecter</button>
+    </form>
+</div>
+{% endblock %}

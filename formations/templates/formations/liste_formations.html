@@ -15,6 +15,10 @@
         </a>
     </div>
 
+    <form method="get" class="mb-3">
+        <input type="text" name="q" class="form-control" placeholder="Rechercher par nom ou code..." value="{{ query }}">
+    </form>
+
     <div class="card shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -47,7 +51,7 @@
                                     <a href="{% url 'formations:modifier_formation' formation.id %}" class="btn btn-sm btn-outline-success" title="Éditer">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="#" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                    <a href="{% url 'formations:supprimer_formation' formation.id %}" class="btn btn-sm btn-outline-danger" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette formation ?');">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </div>

@@ -3,13 +3,36 @@
 {% block title %}Ajouter une Séance - Cahier de Texte Universitaire{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-4">
     <h1 class="mb-4">Ajouter une Séance</h1>
-    <div class="card">
+    <div class="card shadow-sm">
         <div class="card-body">
             <form method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
+                <div class="mb-3">
+                    <label for="id_cours" class="form-label">Cours</label>
+                    {{ form.cours }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_date_seance" class="form-label">Date</label>
+                    {{ form.date_seance }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_heure_debut" class="form-label">Heure de Début</label>
+                    {{ form.heure_debut }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_heure_fin" class="form-label">Heure de Fin</label>
+                    {{ form.heure_fin }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_description" class="form-label">Description</label>
+                    {{ form.description }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_classe" class="form-label">Classe</label>
+                    {{ form.classe }}
+                </div>
                 <button type="submit" class="btn btn-primary">Enregistrer</button>
                 <a href="{% url 'seances:liste_seances' %}" class="btn btn-secondary">Annuler</a>
             </form>

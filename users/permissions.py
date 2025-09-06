@@ -73,9 +73,7 @@ class EstEnseignant(permissions.BasePermission):
         return request.user.is_authenticated and request.user.profil.role == 'enseignant'
 
     def has_object_permission(self, request, view, obj):
-        # Can validate sessions and is linked to a department
-        if hasattr(obj, 'enseignant'):
-            return obj.enseignant == request.user
+        # Supprimer la permission de modification pour les enseignants
         return False
 
 class PeutValiderSeance(permissions.BasePermission):

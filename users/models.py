@@ -11,7 +11,7 @@ class Entite(models.Model):
     date_creation = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.nom
+        return self.noms
 
     class Meta:
         verbose_name = "Entité"

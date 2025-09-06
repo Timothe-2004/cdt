@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Cours{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Liste des Cours</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Enseignant</th>
+                <th>Formation</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cours in cours %}
+            <tr>
+                <td>{{ cours.nom }}</td>
+                <td>{{ cours.enseignant.get_full_name }}</td>
+                <td>{{ cours.formations.first.nom }}</td>
+                <td>
+                    <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-primary btn-sm">Détails</a>
+                    <a href="{% url 'cours:modifier_cours' cours.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                    <a href="{% url 'cours:supprimer_cours' cours.id %}" class="btn btn-danger btn-sm">Supprimer</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">Aucun cours disponible.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -20,6 +20,7 @@ class Cours(models.Model):
     
     # L'enseignant reste inchangé
     enseignant = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='cours')
+    entite = models.ForeignKey('users.Entite', on_delete=models.CASCADE, null=True, blank=True, related_name='cours')
     date_creation = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

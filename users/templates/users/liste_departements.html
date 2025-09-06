@@ -5,6 +5,9 @@
 {% block content %}
 <div class="container">
     <h1>Liste des Départements</h1>
+    <form method="get" class="mb-3">
+        <input type="text" name="q" class="form-control" placeholder="Rechercher par nom ou code..." value="{{ query }}">
+    </form>
     <a href="{% url 'users:creer_departement' %}" class="btn btn-primary">Créer un Département</a>
     <table class="table mt-3">
         <thead>
@@ -25,6 +28,10 @@
                     <a href="{% url 'users:modifier_departement' departement.id %}" class="btn btn-warning btn-sm">Modifier</a>
                     <a href="{% url 'users:supprimer_departement' departement.id %}" class="btn btn-danger btn-sm">Supprimer</a>
                 </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">Aucun département trouvé.</td>
             </tr>
             {% endfor %}
         </tbody>

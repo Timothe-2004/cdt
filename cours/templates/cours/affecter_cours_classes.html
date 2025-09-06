@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Affecter des Cours aux Classes{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Affecter des Cours aux Classes</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="cours" class="form-label">Sélectionnez un Cours :</label>
+            <select id="cours" name="cours" class="form-select">
+                {% for cours in cours_list %}
+                <option value="{{ cours.id }}">{{ cours.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="classes" class="form-label">Sélectionnez les Classes :</label>
+            <select id="classes" name="classes" class="form-select" multiple>
+                {% for classe in classes %}
+                <option value="{{ classe.id }}">{{ classe.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Affecter</button>
+        <a href="{% url 'cours:liste_cours' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

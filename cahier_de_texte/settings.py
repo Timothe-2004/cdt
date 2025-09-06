@@ -82,8 +82,12 @@ WSGI_APPLICATION = 'cahier_de_texte.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'cahier_de_texte_db',
+        'USER': 'postgres',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',  # ou l'adresse IP de votre serveur PostgreSQL
+        'PORT': '5432',       # Port par défaut de PostgreSQL
     }
 }
 

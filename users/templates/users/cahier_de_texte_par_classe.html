@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Cahier de Texte par Classe{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Cahier de Texte par Classe</h1>
+    <ul>
+        {% for classe in classes %}
+        <li>
+            <a href="{% url 'users:seances_par_classe' classe.id %}">{{ classe.nom }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,1 @@
+path('affecter_classe_formation/', views.affecter_classe_formation, name='affecter_classe_formation'),

@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import FormationViewSet, liste_formations, detail_formation, ajouter_formation, ClasseViewSet, CoursViewSet, modifier_formation
+from .views import FormationViewSet, liste_formations, detail_formation, ajouter_formation, ClasseViewSet, CoursViewSet, modifier_formation, supprimer_formation
 
 app_name = 'formations'
 
@@ -16,6 +16,7 @@ urlpatterns = [
     path('<int:formation_id>/', detail_formation, name='detail_formation'),
     path('ajouter/', ajouter_formation, name='ajouter_formation'),
     path('<int:formation_id>/modifier/', modifier_formation, name='modifier_formation'),
+    path('<int:formation_id>/supprimer/', supprimer_formation, name='supprimer_formation'),
 ]
 
 # Ajout des routes du routeur

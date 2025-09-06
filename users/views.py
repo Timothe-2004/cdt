@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from .models import Entite, ProfilUtilisateur, Departement
 from .forms import EntiteForm, AffecterDirecteurForm, DepartementForm
 from classes.models import Classe
@@ -9,6 +10,9 @@ from classes.forms import ClasseForm
 from formations.models import Formation
 from cours.models import Cours
 from users.permissions import EstDirecteurAcademique
+from seances.models import Seance
+from django.db.models import Q, F, Sum
+from datetime import datetime
 
 def is_directeur_academique(user):
     return user.profil.role == 'directeur_academique'
@@ -57,27 +61,31 @@ def liste_entites(request):
     return render(request, 'users/liste_entites.html', {'entites': entites})
 
 @login_required
-@user_passes_test(lambda u: u.profil.role == 'directeur_academique')
+@user_passes_test(is_directeur_academique)
 def liste_departements(request):
+    query = request.GET.get('q', '')
     departements = Departement.objects.filter(entite=request.user.profil.entite)
-    return render(request, 'users/liste_departements.html', {'departements': departements})
+
+    if query:
+        departements = departements.filter(
+            Q(nom__icontains=query) | Q(code__icontains=query)
+        )
+
+    return render(request, 'users/liste_departements.html', {'departements': departements, 'query': query})
 
 @login_required
 @user_passes_test(is_directeur_academique)
 def creer_departement(request):
     if request.method == 'POST':
-        form = DepartementForm(request.POST)
+        form = DepartementForm(request.POST, user=request.user)  # Pass the logged-in user to the form
         if form.is_valid():
             departement = form.save(commit=False)
-            # Vérifie que le département appartient à l'entité du directeur académique
-            if departement.entite != request.user.profil.entite:
-                messages.error(request, "Vous ne pouvez pas créer un département pour une entité différente de la vôtre.")
-                return render(request, 'users/creer_departement.html', {'form': form})
+            departement.entite = request.user.profil.entite  # Automatically set the 'entite' field
             departement.save()
             messages.success(request, 'Département créé avec succès!')
-            return redirect('/users/departements/')  # Redirection explicite vers la page souhaitée
+            return redirect('/users/departements/')
     else:
-        form = DepartementForm()
+        form = DepartementForm(user=request.user)  # Pass the logged-in user to the form
     return render(request, 'users/creer_departement.html', {'form': form})
 
 @login_required
@@ -118,16 +126,18 @@ def liste_classes(request):
 @login_required
 @user_passes_test(is_directeur_academique)
 def creer_classe(request):
+    departement_id = request.POST.get('departement')
     if request.method == 'POST':
-        form = ClasseForm(request.POST)
+        form = ClasseForm(request.POST, user=request.user, departement_id=departement_id)
         if form.is_valid():
             classe = form.save(commit=False)
-            classe.departement = request.user.profil.entite.departements.first()
+            classe.entite_id = request.user.profil.entite  # Automatically set the entity
+            classe.est_tronc_commun = form.cleaned_data['est_tronc_commun']  # Save the value of the radio button
             classe.save()
             messages.success(request, 'Classe créée avec succès!')
             return redirect('users:liste_classes')
     else:
-        form = ClasseForm()
+        form = ClasseForm(user=request.user, departement_id=departement_id)
     return render(request, 'users/creer_classe.html', {'form': form})
 
 @login_required
@@ -180,9 +190,78 @@ def dashboard(request):
         cours = Cours.objects.filter(enseignant=user)
         return render(request, 'users/dashboard_enseignant.html', {'cours': cours})
     elif user.profil.role == 'responsable_classe':
-        return render(request, 'users/dashboard_responsable_classe.html')
+        return redirect('seances:liste_seances')
     elif user.profil.role == 'controleur':
-        return render(request, 'users/dashboard_controleur.html')
+        # Récupérer toutes les classes
+        classes = Classe.objects.all()
+
+        # Récapitulatif des séances par enseignant
+        from django.db.models import Count
+        recapitulatif_seances = Seance.objects.values('enseignant__username').annotate(nb_seances=Count('id'))
+        recapitulatif_seances_dict = {item['enseignant__username']: item['nb_seances'] for item in recapitulatif_seances}
+
+        return render(request, 'users/dashboard_controleur.html', {
+            'classes': classes,
+            'recapitulatif_seances': recapitulatif_seances_dict
+        })
     else:
         messages.error(request, "Votre rôle n'est pas reconnu. Veuillez contacter l'administrateur.")
         return redirect('accueil')
+
+@login_required
+def recapitulatif_par_enseignant(request):
+    from django.db.models import Sum
+    enseignants = Seance.objects.values('enseignant__id', 'enseignant__username', 'enseignant__first_name', 'enseignant__last_name').annotate(
+        total_heures=Sum(
+            (F('heure_fin__hour') * 60 + F('heure_fin__minute')) - (F('heure_debut__hour') * 60 + F('heure_debut__minute'))
+        ) / 60.0  # Convertir les minutes en heures
+    )
+    return render(request, 'users/recapitulatif_par_enseignant.html', {
+        'enseignants': enseignants
+    })
+
+@login_required
+def details_seances_enseignant(request, enseignant_id):
+    seances = Seance.objects.filter(enseignant_id=enseignant_id).select_related('cours', 'classe')
+
+    # Calculer la durée pour chaque séance en heures
+    for seance in seances:
+        debut = datetime.combine(seance.date_seance, seance.heure_debut)
+        fin = datetime.combine(seance.date_seance, seance.heure_fin)
+        seance.duree = round((fin - debut).seconds / 3600, 2)  # Durée en heures avec 2 décimales
+
+    return render(request, 'users/details_seances_enseignant.html', {
+        'seances': seances
+    })
+
+@login_required
+def cahier_de_texte_par_classe(request):
+    classes = Classe.objects.all()
+    return render(request, 'users/cahier_de_texte_par_classe.html', {
+        'classes': classes
+    })
+
+@login_required
+def seances_par_classe(request, classe_id):
+    seances = Seance.objects.filter(classe_id=classe_id).select_related('cours', 'enseignant')
+    classe = get_object_or_404(Classe, id=classe_id)
+
+    # Calculer la durée pour chaque séance en heures
+    for seance in seances:
+        debut = datetime.combine(seance.date_seance, seance.heure_debut)
+        fin = datetime.combine(seance.date_seance, seance.heure_fin)
+        seance.duree = round((fin - debut).seconds / 3600, 2)  # Durée en heures avec 2 décimales
+
+    return render(request, 'users/seances_par_classe.html', {
+        'seances': seances,
+        'classe': classe
+    })
+
+@login_required
+def get_formations_by_departement(request):
+    departement_id = request.GET.get('departement_id')
+    if not departement_id:
+        return JsonResponse({'error': 'No department ID provided'}, status=400)
+
+    formations = Formation.objects.filter(departement_id=departement_id).values('id', 'nom')
+    return JsonResponse(list(formations), safe=False)

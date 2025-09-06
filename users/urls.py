@@ -17,4 +17,8 @@ urlpatterns = [
     path('classes/', views.liste_classes, name='liste_classes'),
     path('classes/creer/', views.creer_classe, name='creer_classe'),
     path('classes/<int:classe_id>/affecter-responsable/', views.affecter_responsable_classe, name='affecter_responsable_classe'),
+    path('recapitulatif-par-enseignant/', views.recapitulatif_par_enseignant, name='recapitulatif_par_enseignant'),
+    path('details-seances-enseignant/<int:enseignant_id>/', views.details_seances_enseignant, name='details_seances_enseignant'),
+    path('cahier-de-texte-par-classe/', views.cahier_de_texte_par_classe, name='cahier_de_texte_par_classe'),
+    path('seances-par-classe/<int:classe_id>/', views.seances_par_classe, name='seances_par_classe'),
 ]

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Affecter un Cours à des Classes{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center text-primary mb-4">Affecter le Cours : <span class="fw-bold">{{ cours.nom }}</span></h1>
+    <form method="post" class="shadow p-4 rounded bg-light">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="search-classes" class="form-label fw-bold">Rechercher des Classes</label>
+            <input type="text" id="search-classes" class="form-control" placeholder="Rechercher des classes...">
+        </div>
+        <div class="mb-4">
+            <label for="classes" class="form-label fw-bold">Sélectionnez les Classes</label>
+            <select name="classes" id="classes" class="form-select" multiple>
+                {% for classe in classes %}
+                <option value="{{ classe.id }}" {% if classe in classes_selectionnees %}selected{% endif %}>
+                    {{ classe.nom }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-success btn-lg">Enregistrer</button>
+            <a href="{% url 'cours:liste_cours' %}" class="btn btn-secondary btn-lg">Annuler</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('search-classes').addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const options = document.querySelectorAll('#classes option');
+
+        options.forEach(option => {
+            const text = option.textContent.toLowerCase();
+            option.style.display = text.includes(query) ? 'block' : 'none';
+        });
+    });
+</script>
+{% endblock %}

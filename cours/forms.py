@@ -2,24 +2,40 @@ from django import forms
 from .models import Cours
 from classes.models import Classe
 from formations.models import Formation
-from users.models import Entite, Departement
+from users.models import User, Departement
 
 class CoursForm(forms.ModelForm):
+    enseignant = forms.ModelChoiceField(
+        queryset=User.objects.filter(profil__role__in=['enseignant', 'directeur_academique', 'chef_departement']),
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label="Enseignant"
+    )
+
     class Meta:
         model = Cours
-        fields = ['nom', 'code'
-        '', 'volume_horaire_total', 'volume_theorie', 'volume_tp', 'volume_td',
-                  'formations', 'classes', 'enseignant']
+        fields = ['nom', 'code', 'volume_horaire_total', 'volume_theorie', 'volume_tp', 'volume_td', 'enseignant']
         widgets = {
-            'nom': forms.TextInput(attrs={'placeholder': 'Nom du cours'}),
-            'code': forms.TextInput(attrs={'placeholder': 'Code du cours'}),
-            'volume_horaire_total': forms.NumberInput(attrs={'min': 0}),
-            'volume_theorie': forms.NumberInput(attrs={'min': 0}),
-            'volume_tp': forms.NumberInput(attrs={'min': 0}),
-            'volume_td': forms.NumberInput(attrs={'min': 0}),
-            'formations': forms.SelectMultiple(attrs={'class': 'select2'}),
-            'classes': forms.SelectMultiple(attrs={'class': 'select2'}),
+            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du cours'}),
+            'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code du cours'}),
+            'volume_horaire_total': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Volume horaire total'}),
+            'volume_theorie': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Volume théorie'}),
+            'volume_tp': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Volume TP'}),
+            'volume_td': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Volume TD'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        if user and hasattr(user, 'profil'):
+            if user.profil.role == 'directeur_academique':
+                self.instance.entite = user.profil.entite
+            elif user.profil.role == 'chef_département' and user.profil.departement:
+                self.instance.entite = user.profil.departement.entite
+
+        self.fields.pop('entite', None)  # Remove the 'entite' field from the form
+        self.fields['enseignant'].label_from_instance = lambda obj: f"{obj.first_name} {obj.last_name}"
 
     def clean(self):
         cleaned_data = super().clean()

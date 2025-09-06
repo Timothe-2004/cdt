@@ -4,22 +4,23 @@
 
 {% block content %}
 <div class="container">
-    <h1>Bienvenue, Enseignant</h1>
-    <p>Consultez vos cours et l'historique des séances.</p>
-
-    <div class="card mt-4">
-        <div class="card-header bg-primary text-white">
-            <h3>Mes Cours</h3>
+    <h1 class="mb-4">Mes cours</h1>
+    <div class="row">
+        {% for cours in cours %}
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ cours.nom }}</h5>
+                    <p class="card-text">{{ cours.description }}</p>
+                    <p class="card-text"><strong>Code:</strong> {{ cours.code }}</p>
+                    <p class="card-text"><strong>Crédits:</strong> {{ cours.credits }}</p>
+                    <p class="card-text"><strong>Volume horaire:</strong> {{ cours.volume_horaire_total }}h</p>
+                    <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-primary">Détails</a>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <ul>
-                {% for cours in cours %}
-                <li>
-                    {{ cours.nom }} - <a href="{% url 'cours:cahier_texte' cours.id %}">Voir le cahier de texte</a>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
+        {% endfor %}
     </div>
+    <a href="{% url 'seances:enseignant_seances' %}" class="btn btn-secondary">Voir l'historique des séances</a>
 </div>
 {% endblock %}

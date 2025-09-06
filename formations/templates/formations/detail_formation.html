@@ -9,11 +9,16 @@
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Informations sur la formation</h5>
-            <p class="card-text"><strong>Responsable :</strong> {{ formation.responsable.get_full_name|default:formation.responsable.username }}</p>
+            <p class="card-text"><strong>Responsable :</strong>
+            {% if formation.responsable %}
+{{ formation.responsable.get_full_name|default:formation.responsable.username }}
+            {% else %}
+                Non assigné
+            {% endif %}</p>
             <p class="card-text"><strong>Description :</strong> {{ formation.description }}</p>
         </div>
     </div>
-    <a href="{% url 'modifier_formation' formation.id %}" class="btn btn-success mt-3">Modifier</a>
-    <a href="{% url 'liste_formations' %}" class="btn btn-secondary mt-3">Retour à la liste</a>
+    <a href="{% url 'formations:modifier_formation' formation.id %}" class="btn btn-success mt-3">Modifier</a>
+    <a href="{% url 'formations:liste_formations' %}" class="btn btn-secondary mt-3">Retour à la liste</a>
 </div>
 {% endblock %}

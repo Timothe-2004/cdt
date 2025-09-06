@@ -12,38 +12,58 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .serializers import CoursSerializer, ClasseSerializer, SeanceSerializer
 from users.permissions import EstEnseignant, EstDirecteurAcademique, EstChefDepartement, EstAdministrateur
+from django.http import JsonResponse, HttpResponseForbidden
+from users.models import Departement
+from django.db.models import Q
 
 @login_required
 def liste_cours(request):
-    cours = Cours.objects.filter(enseignant=request.user)
+    user = request.user
+
+    if user.profil.role == 'directeur_academique':
+        cours = Cours.objects.filter(entite=user.profil.entite)
+    elif user.profil.role == 'chef_departement':
+        cours = Cours.objects.filter(formations__departement__entite=user.profil.entite).distinct()
+    else:
+        cours = Cours.objects.all()
+
+    query = request.GET.get('q', '')
+    if query:
+        cours = cours.filter(nom__icontains=query)
+
     return render(request, 'cours/liste_cours.html', {'cours': cours})
 
 @login_required
 def detail_cours(request, cours_id):
     cours = get_object_or_404(Cours, id=cours_id)
-    seances = cours.seances.all().order_by('date_seance')  # Corrected field name
+    seances = cours.seances.all().order_by('date_seance') 
     formations = cours.formations.all()
     classes = cours.classes.all()
 
+    # Récupérer l'entité associée au cours via les formations
+    entites = set(formation.departement.entite for formation in formations if formation.departement and formation.departement.entite)
+
     if request.user != cours.enseignant and not request.user.is_superuser:
-        messages.error(request, "Vous n'avez pas accès à ce cours.")
-        return redirect('liste_cours')
+        if request.user.profil.role not in ['directeur_academique', 'chef_departement']:
+            messages.error(request, "Vous n'avez pas accès à ce cours.")
+            return redirect('cours:liste_cours')  
 
     return render(request, 'cours/detail_cours.html', {
         'cours': cours,
         'seances': seances,
         'formations': formations,
-        'classes': classes
+        'classes': classes,
+        'entites': entites
     })
 
 @login_required
 def cahier_texte(request, cours_id):
     cours = get_object_or_404(Cours, id=cours_id)
-    seances = cours.seances.all().order_by('date')
-
+    seances = cours.seances.all().order_by('date_seance')  
+    
     if request.user != cours.enseignant and not request.user.is_superuser:
         messages.error(request, "Vous n'avez pas accès à ce cahier de texte.")
-        return redirect('liste_cours')
+        return redirect('cours:liste_cours')
 
     return render(request, 'cours/cahier_texte.html', {
         'cours': cours,
@@ -53,38 +73,20 @@ def cahier_texte(request, cours_id):
 @login_required
 def ajouter_cours(request):
     if request.method == 'POST':
-        form = CoursForm(request.POST)
+        form = CoursForm(request.POST, user=request.user)  # Pass the logged-in user to the form
         if form.is_valid():
             cours = form.save(commit=False)
-            cours.enseignant = request.user
+            # The 'entite' field is already set in the form's __init__ method
             cours.save()
-            # Sauvegarde des relations ManyToMany
-            form.save_m2m()
             messages.success(request, 'Cours créé avec succès!')
-            return redirect('cours:detail_cours', cours_id=cours.id)  # Corrected namespace
+            return redirect('cours:liste_cours')
     else:
-        form = CoursForm()
-
+        form = CoursForm(user=request.user)  # Pass the logged-in user to the form
     return render(request, 'cours/ajouter_cours.html', {'form': form})
 
 @login_required
 def modifier_cours(request, cours_id):
-    cours = get_object_or_404(Cours, id=cours_id)
-    
-    if request.user != cours.enseignant and not request.user.is_superuser:
-        messages.error(request, "Vous n'avez pas l'autorisation de modifier ce cours.")
-        return redirect('liste_cours')
-    
-    if request.method == 'POST':
-        form = CoursForm(request.POST, instance=cours)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Cours modifié avec succès!')
-            return redirect('detail_cours', cours_id=cours.id)
-    else:
-        form = CoursForm(instance=cours)
-    
-    return render(request, 'cours/modifier_cours.html', {'form': form, 'cours': cours})
+    return HttpResponseForbidden("Vous n'avez pas l'autorisation de modifier des cours.")
 
 @login_required
 def supprimer_cours(request, cours_id):
@@ -261,11 +263,19 @@ def affecter_cours_classe(request, cours_id=None, classe_id=None):
         cours = get_object_or_404(Cours, id=cours_id)
         if request.method == 'POST':
             classe_ids = request.POST.getlist('classes')
-            cours.classes.set(classe_ids)
+            for classe_id in classe_ids:
+                cours.classes.add(classe_id)  # Use add instead of set to avoid overwriting existing relationships
             messages.success(request, f"Le cours '{cours.nom}' a été affecté aux classes sélectionnées.")
-            return redirect('detail_cours', cours_id=cours.id)
+            return redirect('cours:detail_cours', cours_id=cours.id)  # Corrected namespace
         
-        classes = Classe.objects.all()
+        # Filtrer les classes par l'entité du directeur académique connecté
+        utilisateur = request.user
+        profil = getattr(utilisateur, 'profil', None)
+        if profil and profil.role == 'directeur_academique' and profil.entite:
+            classes = Classe.objects.filter(entite_id=profil.entite)
+        else:
+            classes = Classe.objects.none()  # Aucun accès si l'utilisateur n'est pas un directeur académique ou n'a pas d'entité
+
         return render(request, 'cours/affecter_cours_classe.html', {
             'cours': cours,
             'classes': classes,
@@ -278,10 +288,10 @@ def affecter_cours_classe(request, cours_id=None, classe_id=None):
             cours_ids = request.POST.getlist('cours')
             for cours_id in cours_ids:
                 cours = Cours.objects.get(id=cours_id)
-                cours.classes.add(classe)
+                cours.classes.add(classe)  # Use add to maintain existing relationships
             
             messages.success(request, f"Les cours sélectionnés ont été affectés à la classe '{classe.nom}'.")
-            return redirect('detail_classe', classe_id=classe.id)
+            return redirect('cours:liste_cours')
         
         cours_disponibles = Cours.objects.all()
         return render(request, 'classes/affecter_cours.html', {
@@ -291,65 +301,29 @@ def affecter_cours_classe(request, cours_id=None, classe_id=None):
         })
 
 @login_required
-def affecter_classe_formation(request, classe_id=None, formation_id=None):
-    """Vue pour affecter une classe à une formation ou inversement"""
-    if classe_id:
-        classe = get_object_or_404(Classe, id=classe_id)
-        if request.method == 'POST':
-            formation_ids = request.POST.getlist('formations')
-            classe.formations.set(formation_ids)
-            messages.success(request, f"La classe '{classe.nom}' a été affectée aux formations sélectionnées.")
-            return redirect('detail_classe', classe_id=classe.id)
-        
-        formations = Formation.objects.all()
-        return render(request, 'classes/affecter_classe_formation.html', {
-            'classe': classe,
-            'formations': formations,
-            'formations_selectionnees': classe.formations.all(),
-        })
-    
-    elif formation_id:
-        formation = get_object_or_404(Formation, id=formation_id)
-        if request.method == 'POST':
-            classe_ids = request.POST.getlist('classes')
-            for classe_id in classe_ids:
-                classe = Classe.objects.get(id=classe_id)
-                classe.formations.add(formation)
-            
-            messages.success(request, f"Les classes sélectionnées ont été affectées à la formation '{formation.nom}'.")
-            return redirect('detail_formation', formation_id=formation.id)
-        
-        classes_disponibles = Classe.objects.all()
-        return render(request, 'formations/affecter_classes.html', {
-            'formation': formation,
-            'classes_disponibles': classes_disponibles,
-            'classes_selectionnees': formation.classes_associees.all(),
-        })
-
-@login_required
 def recherche_cours(request):
     """Vue pour rechercher des cours selon différents critères"""
     query = request.GET.get('q', '')
     formation_id = request.GET.get('formation', '')
     classe_id = request.GET.get('classe', '')
-    
+
     cours = Cours.objects.all()
-    
+
     if query:
         cours = cours.filter(
             Q(nom__icontains=query) | 
             Q(code__icontains=query)
         )
-    
+
     if formation_id:
         cours = cours.filter(formations__id=formation_id)
-    
+
     if classe_id:
         cours = cours.filter(classes__id=classe_id)
-    
+
     formations = Formation.objects.all()
     classes = Classe.objects.all()
-    
+
     return render(request, 'cours/recherche_cours.html', {
         'cours': cours,
         'query': query,
@@ -358,3 +332,31 @@ def recherche_cours(request):
         'formation_id': formation_id,
         'classe_id': classe_id,
     })
+
+@login_required
+def get_formations_by_departement(request):
+    departement_id = request.GET.get('departement_id')
+    if not departement_id:
+        return JsonResponse({'error': 'No department ID provided'}, status=400)
+
+    formations = Formation.objects.filter(departement_id=departement_id).values('id', 'nom')
+    return JsonResponse(list(formations), safe=False)
+
+@login_required
+def get_departments(request):
+    query = request.GET.get('q', '')
+    departments = Departement.objects.filter(nom__icontains=query).values('id', 'nom')
+    return JsonResponse(list(departments), safe=False)
+
+@login_required
+def get_classes_by_formation(request):
+    formation_id = request.GET.get('formation_id')
+    if not formation_id:
+        return JsonResponse({'error': 'No formation ID provided'}, status=400)
+
+    classes = Classe.objects.filter(formations__id=formation_id).distinct().values('id', 'nom')
+    return JsonResponse(list(classes), safe=False)
+
+@login_required
+def affecter_cours_enseignant(request, cours_id):
+    return HttpResponseForbidden("Vous n'avez pas l'autorisation d'affecter des cours à un enseignant.")

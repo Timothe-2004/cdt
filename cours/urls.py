@@ -25,7 +25,9 @@ urlpatterns = [
     path('affecter-formation/<int:cours_id>/', views.affecter_cours_formation, name='affecter_cours_formation'),
     path('affecter-classe/<int:cours_id>/', views.affecter_cours_classe, name='affecter_cours_classe'),
     path('recherche/', views.recherche_cours, name='recherche_cours'),
-    
+    path('get_formations_by_departement/', views.get_formations_by_departement, name='get_formations_by_departement'),
+    path('get_departments/', views.get_departments, name='get_departments'),
+    path('get_classes_by_formation/', views.get_classes_by_formation, name='get_classes_by_formation'),
     # URLs pour l'API REST
     path('api/', include(router.urls)),
 ]

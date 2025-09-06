@@ -3,9 +3,36 @@
 {% block title %}Tableau de Bord - Responsable de Classe{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Bienvenue, Responsable de Classe</h1>
-    <p>Remplissez les séances pour les cours de votre classe.</p>
-    <a href="{% url 'seances:liste_seances' %}" class="btn btn-primary">Gérer les Séances</a>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Tableau de Bord - Responsable de Classe</h1>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-primary">Séances</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Cours</th>
+                        <th>Responsable</th>
+                        <th>Date</th>
+                        <th>Heure</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for seance in seances %}
+                    <tr>
+                        <td>{{ seance.cours.nom }}</td>
+                        <td>{{ seance.responsable_classe.username }}</td>
+                        <td>{{ seance.date_seance|date:"d/m/Y" }}</td>
+                        <td>{{ seance.heure_debut|time:"H:i" }} - {{ seance.heure_fin|time:"H:i" }}</td>
+                        <td>{{ seance.description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+<a href="{% url 'seances:liste_seances' %}" class="nav-link">Cahier de Texte</a>
 {% endblock %}

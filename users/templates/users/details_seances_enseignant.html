@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Détails des Séances{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Détails des Séances</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Cours</th>
+                <th>Classe</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Durée</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for seance in seances %}
+            <tr>
+                <td>{{ seance.cours.nom }}</td>
+                <td>{{ seance.classe.nom }}</td>
+                <td>{{ seance.date_seance|date:"d/m/Y" }}</td>
+                <td>{{ seance.heure_debut|time:"H:i" }} - {{ seance.heure_fin|time:"H:i" }}</td>
+                <td>{{ seance.duree|floatformat:2 }} heures</td>
+                <td>{{ seance.description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

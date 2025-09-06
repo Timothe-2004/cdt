@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Séances de l'Enseignant{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Mes Séances</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Cours</th>
+                <th>Classe</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for seance in seances %}
+            <tr>
+                <td>{{ seance.date_seance|date:"d/m/Y" }}</td>
+                <td>{{ seance.heure_debut|time:"H:i" }} - {{ seance.heure_fin|time:"H:i" }}</td>
+                <td>{{ seance.cours.nom }}</td>
+                <td>{{ seance.classe.nom }}</td>
+                <td>
+                    <a href="{% url 'seances:detail_seance' seance.id %}" class="btn btn-primary btn-sm">Voir Détails</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">Aucune séance trouvée.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

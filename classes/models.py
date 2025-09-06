@@ -16,6 +16,8 @@ class Classe(models.Model):
     # Utiliser un identifiant au lieu d'une relation directe
     entite_id = models.ForeignKey('users.Entite', on_delete=models.CASCADE, related_name='classes')
     date_creation = models.DateTimeField(auto_now_add=True)
+    responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='classes_responsables')
+    est_tronc_commun = models.BooleanField(default=False, verbose_name="Est-ce une classe de tronc commun ?")
 
     def get_entite(self):
         from users.models import Entite  # Import local

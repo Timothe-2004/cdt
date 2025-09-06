@@ -16,15 +16,14 @@ class Formation(models.Model):
     departement = models.ForeignKey(
         Departement,
         on_delete=models.SET_NULL,
-        null=True,  # Permettre les valeurs nulles pour éviter l'erreur
+        null=True,  
         related_name='formations'
     )
 
     responsable = models.ForeignKey( User, on_delete=models.SET_NULL, null=True, related_name='formations_responsable')
       
       
-      #  cours = models.ManyToManyField(Cours, related_name='formations_associees')  # Modification ici
-
+      
     def __str__(self):
         return self.nom
 

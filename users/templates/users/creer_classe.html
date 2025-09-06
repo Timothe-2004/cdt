@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container">
     <h1>Créer une Classe</h1>
-    <form method="post">
+    <form method="post" id="classe-form">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-success">Créer</button>

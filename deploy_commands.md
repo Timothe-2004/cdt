@@ -36,32 +36,31 @@ git push origin main
 SECRET_KEY: [Généré automatiquement par Render]
 DEBUG: False
 ALLOWED_HOSTS: votre-app.onrender.com
-DATABASE_URL: [Généré automatiquement par la base de données]
 ```
 
-### 3. Créer une base de données PostgreSQL
-1. Cliquez sur "New +" → "PostgreSQL"
-2. **Name**: `cahier-de-texte-db`
-3. **Plan**: Free
-4. Copiez l'URL de connexion
+> **Note**: L'application utilise SQLite par défaut. Aucune base de données externe n'est nécessaire !
 
-### 4. Connecter la base de données
-1. Dans votre service web, ajoutez la variable d'environnement :
-   - **Key**: `DATABASE_URL`
-   - **Value**: URL de connexion de votre base de données
+### 3. Configuration de la base de données
+- ✅ **SQLite** est utilisé par défaut
+- ✅ **Aucune configuration supplémentaire nécessaire**
+- ✅ **Base de données créée automatiquement**
 
-### 5. Déployer
+> **Optionnel**: Si vous préférez PostgreSQL, ajoutez la variable `DATABASE_URL` avec l'URL de votre base de données PostgreSQL.
+
+### 4. Déployer
 1. Cliquez sur "Create Web Service"
 2. Attendez que le déploiement se termine
 3. Vérifiez les logs pour voir le processus
 
 ## 🔧 Commandes post-déploiement
 
-### Créer un superutilisateur
-```bash
-# Via le shell de Render
-python manage.py createsuperuser
-```
+### Accès administrateur
+Un superutilisateur est créé automatiquement :
+- **Nom d'utilisateur**: `admin`
+- **Mot de passe**: `admin123`
+- **Email**: `admin@example.com`
+
+> **⚠️ Important**: Changez ces identifiants après le premier déploiement !
 
 ### Vérifier les migrations
 ```bash

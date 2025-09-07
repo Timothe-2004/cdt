@@ -58,11 +58,13 @@ L'application utilise **SQLite** par défaut, ce qui simplifie le déploiement :
    - Render déploiera automatiquement votre application
    - Surveillez les logs pour voir le processus
 
-2. **Créer un superutilisateur**
-   ```bash
-   # Via le shell de Render
-   python manage.py createsuperuser
-   ```
+2. **Accès administrateur**
+   - Un superutilisateur est créé automatiquement lors du déploiement
+   - **Nom d'utilisateur**: `admin`
+   - **Mot de passe**: `admin123`
+   - **Email**: `admin@example.com`
+   
+   > **⚠️ Important**: Changez ces identifiants après le premier déploiement 
 
 ## 📱 Accès aux pages
 
@@ -113,7 +115,7 @@ python manage.py createsuperuser
 - `SECRET_KEY`: Clé secrète Django (générée automatiquement)
 - `DEBUG`: Mode debug (False en production)
 - `ALLOWED_HOSTS`: Domaines autorisés
-- `DATABASE_URL`: URL de connexion à la base de données
+- `DATABASE_URL`: URL de connexion à la base de données (optionnel, SQLite par défaut)
 
 ### Fichiers de configuration
 - `requirements.txt`: Dépendances Python

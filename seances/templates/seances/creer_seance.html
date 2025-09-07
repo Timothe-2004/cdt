@@ -3,50 +3,177 @@
 {% block title %}Créer une nouvelle séance{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mb-4">Créer une nouvelle séance</h1>
-    <form method="post">
-        {% csrf_token %}
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="id_cours" class="form-label">Cours</label>
-                {{ form.cours|add_class:"form-select" }}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">
+                    <i class="fas fa-plus-circle me-3"></i>
+                    Créer une nouvelle séance
+                </h1>
+                <p class="page-subtitle">
+                    Planifiez et créez une nouvelle séance de cours
+                </p>
             </div>
-            <div class="col-md-6">
-                <label for="id_titre" class="form-label">Titre</label>
-                {{ form.titre|add_class:"form-control" }}
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label for="id_date" class="form-label">Date</label>
-                {{ form.date|add_class:"form-control" }}
-            </div>
-            <div class="col-md-4">
-                <label for="id_heure_debut" class="form-label">Heure de début</label>
-                {{ form.heure_debut|add_class:"form-control" }}
-            </div>
-            <div class="col-md-4">
-                <label for="id_heure_fin" class="form-label">Heure de fin</label>
-                {{ form.heure_fin|add_class:"form-control" }}
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'seances:liste_seances' %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+                </a>
             </div>
         </div>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="id_salle" class="form-label">Salle</label>
-                {{ form.salle|add_class:"form-control" }}
-            </div>
-            <div class="col-md-6">
-                <label for="id_description" class="form-label">Description</label>
-                {{ form.description|add_class:"form-control" }}
-            </div>
-        </div>
-        <div class="mb-3">
-            <label for="id_contenu" class="form-label">Contenu</label>
-            {{ form.contenu|add_class:"form-control" }}
-        </div>
-        <button type="submit" class="btn btn-primary">Créer</button>
-        <a href="{% url 'seances:liste_seances' %}" class="btn btn-secondary">Annuler</a>
-    </form>
+    </div>
 </div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-transparent border-0 text-center py-4">
+                    <div class="mb-3">
+                        <i class="fas fa-calendar-plus fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Création de séance</h4>
+                    <p class="text-muted mb-0">Remplissez tous les détails de votre nouvelle séance</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Course and Title -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="id_cours" class="form-label fw-semibold">
+                                    <i class="fas fa-book me-1"></i>Cours *
+                                </label>
+                                {{ form.cours|add_class:"form-select" }}
+                                {% if form.cours.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.cours.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_titre" class="form-label fw-semibold">
+                                    <i class="fas fa-heading me-1"></i>Titre *
+                                </label>
+                                {{ form.titre|add_class:"form-control" }}
+                                {% if form.titre.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.titre.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Date and Time -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label for="id_date" class="form-label fw-semibold">
+                                    <i class="fas fa-calendar me-1"></i>Date *
+                                </label>
+                                {{ form.date|add_class:"form-control" }}
+                                {% if form.date.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.date.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="id_heure_debut" class="form-label fw-semibold">
+                                    <i class="fas fa-clock me-1"></i>Heure de début *
+                                </label>
+                                {{ form.heure_debut|add_class:"form-control" }}
+                                {% if form.heure_debut.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.heure_debut.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="id_heure_fin" class="form-label fw-semibold">
+                                    <i class="fas fa-clock me-1"></i>Heure de fin *
+                                </label>
+                                {{ form.heure_fin|add_class:"form-control" }}
+                                {% if form.heure_fin.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.heure_fin.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Room and Description -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="id_salle" class="form-label fw-semibold">
+                                    <i class="fas fa-door-open me-1"></i>Salle
+                                </label>
+                                {{ form.salle|add_class:"form-control" }}
+                                {% if form.salle.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.salle.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_description" class="form-label fw-semibold">
+                                    <i class="fas fa-align-left me-1"></i>Description
+                                </label>
+                                {{ form.description|add_class:"form-control" }}
+                                {% if form.description.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.description.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="mb-4">
+                            <label for="id_contenu" class="form-label fw-semibold">
+                                <i class="fas fa-file-text me-1"></i>Contenu de la séance *
+                            </label>
+                            {{ form.contenu|add_class:"form-control" }}
+                            {% if form.contenu.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.contenu.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'seances:liste_seances' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i> Créer la séance
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
 {% endblock %}

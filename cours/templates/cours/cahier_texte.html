@@ -1,62 +1,201 @@
-<!-- templates/cours/cahier_texte.html -->
 {% extends 'base.html' %}
 
 {% block title %}Cahier de Texte - {{ cours.titre }} - Cahier de Texte Universitaire{% endblock %}
 
 {% block content %}
-<div class="container">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'accueil' %}">Accueil</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'cours:liste_cours' %}">Mes Cours</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'detail_cours' cours.id %}">{{ cours.titre }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Cahier de Texte</li>
-        </ol>
-    </nav>
-
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">
-                <i class="fas fa-book-open me-2"></i>
-                Cahier de Texte - {{ cours.titre }}
-            </h3>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Date</th>
-                            <th>Titre</th>
-                            <th>Contenu</th>
-                            <th>Durée</th>
-                            <th>Salle</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for seance in seances %}
-                        <tr>
-                            <td>{{ seance.date|date:"d/m/Y" }}</td>
-                            <td>{{ seance.titre }}</td>
-                            <td>{{ seance.contenu }}</td>
-                            <td>{{ seance.duree }} heures</td>
-                            <td>{{ seance.salle }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-4">
-                                <p class="text-muted mb-0">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Aucune séance n'a encore été planifiée pour ce cours.
-                                </p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">
+                    <i class="fas fa-book-open me-3"></i>
+                    Cahier de Texte
+                </h1>
+                <p class="page-subtitle">
+                    Suivi des séances pour le cours : {{ cours.titre }}
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Retour au cours
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'accueil' %}" class="text-decoration-none">
+                    <i class="fas fa-home me-1"></i>Accueil
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'cours:liste_cours' %}" class="text-decoration-none">Mes Cours</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'cours:detail_cours' cours.id %}" class="text-decoration-none">{{ cours.titre }}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Cahier de Texte</li>
+        </ol>
+    </nav>
+
+    <!-- Course Info Card -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0">
+            <div class="d-flex align-items-center">
+                <div class="course-icon me-3">
+                    <i class="fas fa-book fa-2x text-primary"></i>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">{{ cours.titre }}</h4>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-user me-1"></i>{{ cours.enseignant.get_full_name|default:cours.enseignant.username }}
+                        <span class="mx-2">•</span>
+                        <i class="fas fa-clock me-1"></i>{{ cours.volume_horaire_total }}h
+                        <span class="mx-2">•</span>
+                        <i class="fas fa-star me-1"></i>{{ cours.credits }} crédits
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sessions Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-0">
+            <h5 class="fw-bold mb-0">
+                <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                Séances du cours
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if seances %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="border-0 ps-4">
+                                    <i class="fas fa-calendar me-2 text-primary"></i>Date
+                                </th>
+                                <th class="border-0">
+                                    <i class="fas fa-heading me-2 text-primary"></i>Titre
+                                </th>
+                                <th class="border-0">
+                                    <i class="fas fa-align-left me-2 text-primary"></i>Contenu
+                                </th>
+                                <th class="border-0">
+                                    <i class="fas fa-clock me-2 text-primary"></i>Durée
+                                </th>
+                                <th class="border-0">
+                                    <i class="fas fa-door-open me-2 text-primary"></i>Salle
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for seance in seances %}
+                            <tr class="border-bottom">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="date-icon me-3">
+                                            <i class="fas fa-calendar fa-2x text-success"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ seance.date|date:"d/m/Y" }}</div>
+                                            <small class="text-muted">{{ seance.date|date:"l" }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">{{ seance.titre }}</div>
+                                </td>
+                                <td>
+                                    <div class="content-preview">
+                                        {{ seance.contenu|truncatechars:100 }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-clock me-2 text-info"></i>
+                                        <span class="fw-semibold">{{ seance.duree }}h</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-door-open me-2 text-warning"></i>
+                                        <span class="fw-semibold">{{ seance.salle|default:"N/A" }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-calendar-alt fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">Aucune séance planifiée</h4>
+                    <p class="text-muted mb-4">
+                        Aucune séance n'a encore été planifiée pour ce cours.
+                    </p>
+                    <a href="{% url 'seances:planifier_seance' %}?cours_id={{ cours.id }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i> Planifier une séance
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .course-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(37, 99, 235, 0.1);
+        border-radius: 50%;
+    }
+    
+    .date-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 50%;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(37, 99, 235, 0.02);
+    }
+    
+    .content-preview {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .breadcrumb {
+        background: rgba(37, 99, 235, 0.05);
+        border-radius: 0.75rem;
+        padding: 1rem 1.5rem;
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        color: var(--primary-color);
+        font-weight: bold;
+    }
+</style>
 {% endblock %}
 

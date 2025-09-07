@@ -3,25 +3,184 @@
 {% block title %}Liste des Utilisateurs{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Liste des Utilisateurs</h1>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Rôle</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for utilisateur in utilisateurs %}
-            <tr>
-                <td>{{ utilisateur.get_full_name }}</td>
-                <td>{{ utilisateur.email }}</td>
-                <td>{{ utilisateur.profil.role }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">
+                    <i class="fas fa-users me-3"></i>
+                    Liste des Utilisateurs
+                </h1>
+                <p class="page-subtitle">
+                    Gérez tous les utilisateurs du système
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="/admin/auth/user/add/" class="btn btn-light btn-lg">
+                    <i class="fas fa-plus me-2"></i> Ajouter un utilisateur
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<div class="container">
+    <!-- Search and Filters -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-3">
+                    <form method="get" class="d-flex gap-2">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input class="form-control border-start-0" type="search" name="q" placeholder="Rechercher un utilisateur..." value="{{ request.GET.q }}" aria-label="Search">
+                        </div>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search me-1"></i> Rechercher
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-3 text-center">
+                    <div class="stats-card">
+                        <div class="stats-number">{{ utilisateurs|length }}</div>
+                        <div class="stats-label">Utilisateurs au total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users List -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            {% if utilisateurs %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="border-0 ps-4">
+                                    <i class="fas fa-user me-2 text-primary"></i>Utilisateur
+                                </th>
+                                <th class="border-0">
+                                    <i class="fas fa-envelope me-2 text-primary"></i>Email
+                                </th>
+                                <th class="border-0">
+                                    <i class="fas fa-user-tag me-2 text-primary"></i>Rôle
+                                </th>
+                                <th class="border-0">
+                                    <i class="fas fa-calendar me-2 text-primary"></i>Dernière connexion
+                                </th>
+                                <th class="border-0 text-center">
+                                    <i class="fas fa-cogs me-2 text-primary"></i>Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for utilisateur in utilisateurs %}
+                            <tr class="border-bottom">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar me-3">
+                                            <i class="fas fa-user-circle fa-2x text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ utilisateur.get_full_name|default:utilisateur.username }}</div>
+                                            <small class="text-muted">@{{ utilisateur.username }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-envelope me-2 text-muted"></i>
+                                        <span>{{ utilisateur.email|default:"N/A" }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if utilisateur.profil.role == 'enseignant' %}
+                                        <span class="badge bg-primary">
+                                            <i class="fas fa-chalkboard-teacher me-1"></i>Enseignant
+                                        </span>
+                                    {% elif utilisateur.profil.role == 'administrateur' %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-cog me-1"></i>Administrateur
+                                        </span>
+                                    {% elif utilisateur.profil.role == 'controleur' %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-eye me-1"></i>Contrôleur
+                                        </span>
+                                    {% elif utilisateur.profil.role == 'directeur_academique' %}
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-user-tie me-1"></i>Directeur Académique
+                                        </span>
+                                    {% elif utilisateur.profil.role == 'responsable_classe' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-users me-1"></i>Responsable Classe
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-user me-1"></i>{{ utilisateur.profil.role|title }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-clock me-2 text-muted"></i>
+                                        <span>{{ utilisateur.last_login|date:"d/m/Y H:i"|default:"Jamais connecté" }}</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a href="/admin/auth/user/{{ utilisateur.id }}/change/" class="btn btn-sm btn-outline-primary" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="/admin/auth/user/{{ utilisateur.id }}/delete/" class="btn btn-sm btn-outline-danger" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-users fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">Aucun utilisateur trouvé</h4>
+                    <p class="text-muted mb-4">
+                        Aucun utilisateur ne correspond à votre recherche.
+                    </p>
+                    <a href="/admin/auth/user/add/" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i> Ajouter un utilisateur
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(37, 99, 235, 0.1);
+        border-radius: 50%;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(37, 99, 235, 0.02);
+    }
+</style>
 {% endblock %}

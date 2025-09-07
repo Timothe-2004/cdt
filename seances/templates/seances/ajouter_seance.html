@@ -3,40 +3,119 @@
 {% block title %}Ajouter une Séance - Cahier de Texte Universitaire{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4">Ajouter une Séance</h1>
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label for="id_cours" class="form-label">Cours</label>
-                    {{ form.cours }}
-                </div>
-                <div class="mb-3">
-                    <label for="id_date_seance" class="form-label">Date</label>
-                    {{ form.date_seance }}
-                </div>
-                <div class="mb-3">
-                    <label for="id_heure_debut" class="form-label">Heure de Début</label>
-                    {{ form.heure_debut }}
-                </div>
-                <div class="mb-3">
-                    <label for="id_heure_fin" class="form-label">Heure de Fin</label>
-                    {{ form.heure_fin }}
-                </div>
-                <div class="mb-3">
-                    <label for="id_description" class="form-label">Description</label>
-                    {{ form.description }}
-                </div>
-                <div class="mb-3">
-                    <label for="id_classe" class="form-label">Classe</label>
-                    {{ form.classe }}
-                </div>
-                <button type="submit" class="btn btn-primary">Enregistrer</button>
-                <a href="{% url 'seances:liste_seances' %}" class="btn btn-secondary">Annuler</a>
-            </form>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">
+                    <i class="fas fa-plus-circle me-3"></i>
+                    Ajouter une Séance
+                </h1>
+                <p class="page-subtitle">
+                    Planifiez une nouvelle séance de cours
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'seances:liste_seances' %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+                </a>
+            </div>
         </div>
     </div>
 </div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-transparent border-0 text-center py-4">
+                    <div class="mb-3">
+                        <i class="fas fa-calendar-plus fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Planification de séance</h4>
+                    <p class="text-muted mb-0">Remplissez les détails de votre nouvelle séance</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                            <div class="mb-4">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                                    {% if field.name == 'cours' %}
+                                        <i class="fas fa-book me-1"></i>Cours *
+                                    {% elif field.name == 'date_seance' %}
+                                        <i class="fas fa-calendar me-1"></i>Date de la séance *
+                                    {% elif field.name == 'heure_debut' %}
+                                        <i class="fas fa-clock me-1"></i>Heure de début *
+                                    {% elif field.name == 'heure_fin' %}
+                                        <i class="fas fa-clock me-1"></i>Heure de fin *
+                                    {% elif field.name == 'description' %}
+                                        <i class="fas fa-align-left me-1"></i>Description
+                                    {% elif field.name == 'classe' %}
+                                        <i class="fas fa-users me-1"></i>Classe *
+                                    {% else %}
+                                        {{ field.label }}
+                                    {% endif %}
+                                </label>
+                                
+                                {% if field.name == 'description' %}
+                                    <textarea class="form-control" 
+                                              id="{{ field.id_for_label }}" 
+                                              name="{{ field.name }}" 
+                                              rows="3" 
+                                              placeholder="Décrivez le contenu de la séance...">{{ field.value|default:"" }}</textarea>
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
+                                
+                                {% if field.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in field.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'seances:liste_seances' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i> Enregistrer la séance
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
 {% endblock %}

@@ -3,13 +3,138 @@
 {% block title %}Supprimer le Cours - {{ cours.nom }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mb-4">Supprimer le Cours</h1>
-    <p>Êtes-vous sûr de vouloir supprimer le cours <strong>{{ cours.nom }}</strong> ? Cette action est irréversible.</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Supprimer</button>
-        <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-secondary">Annuler</a>
-    </form>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">
+                    <i class="fas fa-exclamation-triangle me-3"></i>
+                    Supprimer le Cours
+                </h1>
+                <p class="page-subtitle">
+                    Confirmez la suppression du cours : {{ cours.nom }}
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Retour au cours
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-transparent border-0 text-center py-4">
+                    <div class="mb-3">
+                        <i class="fas fa-exclamation-triangle fa-4x text-danger"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2 text-danger">Attention !</h4>
+                    <p class="text-muted mb-0">Cette action est irréversible</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Course Info -->
+                    <div class="alert alert-warning mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-info-circle fa-2x me-3"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Informations du cours à supprimer</h6>
+                                <p class="mb-0">
+                                    <strong>Nom :</strong> {{ cours.nom }}<br>
+                                    <strong>Code :</strong> {{ cours.code|default:"N/A" }}<br>
+                                    <strong>Enseignant :</strong> {{ cours.enseignant.get_full_name|default:cours.enseignant.username }}<br>
+                                    <strong>Volume horaire :</strong> {{ cours.volume_horaire_total }}h<br>
+                                    <strong>Crédits :</strong> {{ cours.credits }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Warning Message -->
+                    <div class="alert alert-danger mb-4">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-exclamation-triangle fa-2x me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-2">Conséquences de la suppression</h6>
+                                <ul class="mb-0">
+                                    <li>Toutes les séances associées à ce cours seront supprimées</li>
+                                    <li>Les affectations aux classes seront perdues</li>
+                                    <li>Cette action ne peut pas être annulée</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirmation Form -->
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirm-delete" required>
+                                <label class="form-check-label fw-semibold" for="confirm-delete">
+                                    Je confirme vouloir supprimer définitivement ce cours
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-3 justify-content-center">
+                            <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger btn-lg" id="delete-btn" disabled>
+                                <i class="fas fa-trash me-2"></i> Supprimer définitivement
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+
+    // Enable/disable delete button based on checkbox
+    document.getElementById('confirm-delete').addEventListener('change', function() {
+        const deleteBtn = document.getElementById('delete-btn');
+        if (this.checked) {
+            deleteBtn.disabled = false;
+            deleteBtn.classList.remove('btn-outline-danger');
+            deleteBtn.classList.add('btn-danger');
+        } else {
+            deleteBtn.disabled = true;
+            deleteBtn.classList.remove('btn-danger');
+            deleteBtn.classList.add('btn-outline-danger');
+        }
+    });
+
+    // Double confirmation on form submit
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (!confirm('Êtes-vous ABSOLUMENT sûr de vouloir supprimer ce cours ? Cette action est irréversible !')) {
+            e.preventDefault();
+        }
+    });
+</script>
 {% endblock %}

@@ -3,13 +3,123 @@
 {% block title %}Modifier le Cours - {{ cours.nom }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mb-4">Modifier le Cours</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
-        <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-secondary">Annuler</a>
-    </form>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">
+                    <i class="fas fa-edit me-3"></i>
+                    Modifier le Cours
+                </h1>
+                <p class="page-subtitle">
+                    Modifiez les informations du cours : {{ cours.nom }}
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Retour au cours
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-transparent border-0 text-center py-4">
+                    <div class="mb-3">
+                        <i class="fas fa-edit fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Modification du cours</h4>
+                    <p class="text-muted mb-0">Modifiez les détails de votre cours</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                            <div class="mb-4">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                                    {% if field.name == 'nom' %}
+                                        <i class="fas fa-book me-1"></i>Nom du cours *
+                                    {% elif field.name == 'code' %}
+                                        <i class="fas fa-hashtag me-1"></i>Code du cours
+                                    {% elif field.name == 'description' %}
+                                        <i class="fas fa-align-left me-1"></i>Description
+                                    {% elif field.name == 'volume_horaire_total' %}
+                                        <i class="fas fa-clock me-1"></i>Volume horaire (h) *
+                                    {% elif field.name == 'credits' %}
+                                        <i class="fas fa-star me-1"></i>Crédits *
+                                    {% elif field.name == 'enseignant' %}
+                                        <i class="fas fa-user me-1"></i>Enseignant *
+                                    {% elif field.name == 'formation' %}
+                                        <i class="fas fa-graduation-cap me-1"></i>Formation *
+                                    {% elif field.name == 'classes' %}
+                                        <i class="fas fa-users me-1"></i>Classes concernées
+                                    {% else %}
+                                        {{ field.label }}
+                                    {% endif %}
+                                </label>
+                                
+                                {% if field.name == 'description' %}
+                                    <textarea class="form-control" 
+                                              id="{{ field.id_for_label }}" 
+                                              name="{{ field.name }}" 
+                                              rows="4" 
+                                              placeholder="Décrivez le contenu et les objectifs du cours...">{{ field.value|default:"" }}</textarea>
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
+                                
+                                {% if field.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in field.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i> Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
 {% endblock %}

@@ -3,40 +3,185 @@
 {% block title %}Affecter un Cours à des Classes{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="text-center text-primary mb-4">Affecter le Cours : <span class="fw-bold">{{ cours.nom }}</span></h1>
-    <form method="post" class="shadow p-4 rounded bg-light">
-        {% csrf_token %}
-        <div class="mb-4">
-            <label for="search-classes" class="form-label fw-bold">Rechercher des Classes</label>
-            <input type="text" id="search-classes" class="form-control" placeholder="Rechercher des classes...">
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">
+                    <i class="fas fa-users me-3"></i>
+                    Affecter le Cours
+                </h1>
+                <p class="page-subtitle">
+                    Assignez le cours <strong>{{ cours.nom }}</strong> à des classes
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Retour au cours
+                </a>
+            </div>
         </div>
-        <div class="mb-4">
-            <label for="classes" class="form-label fw-bold">Sélectionnez les Classes</label>
-            <select name="classes" id="classes" class="form-select" multiple>
-                {% for classe in classes %}
-                <option value="{{ classe.id }}" {% if classe in classes_selectionnees %}selected{% endif %}>
-                    {{ classe.nom }}
-                </option>
-                {% endfor %}
-            </select>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-transparent border-0 text-center py-4">
+                    <div class="mb-3">
+                        <i class="fas fa-users fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Affectation aux classes</h4>
+                    <p class="text-muted mb-0">Sélectionnez les classes pour le cours : <strong>{{ cours.nom }}</strong></p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Course Info -->
+                        <div class="alert alert-info mb-4">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-info-circle fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Informations du cours</h6>
+                                    <p class="mb-0">
+                                        <strong>Nom :</strong> {{ cours.nom }}<br>
+                                        <strong>Code :</strong> {{ cours.code|default:"N/A" }}<br>
+                                        <strong>Enseignant :</strong> {{ cours.enseignant.get_full_name|default:cours.enseignant.username }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Search Classes -->
+                        <div class="mb-4">
+                            <label for="search-classes" class="form-label fw-semibold">
+                                <i class="fas fa-search me-1"></i>Rechercher des classes
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" 
+                                       id="search-classes" 
+                                       class="form-control border-start-0" 
+                                       placeholder="Tapez pour filtrer les classes...">
+                            </div>
+                        </div>
+                        
+                        <!-- Classes Selection -->
+                        <div class="mb-4">
+                            <label for="classes" class="form-label fw-semibold">
+                                <i class="fas fa-users me-1"></i>Sélectionnez les classes *
+                            </label>
+                            <select name="classes" 
+                                    id="classes" 
+                                    class="form-select" 
+                                    multiple 
+                                    size="8"
+                                    required>
+                                {% for classe in classes %}
+                                    <option value="{{ classe.id }}" 
+                                            {% if classe in classes_selectionnees %}selected{% endif %}
+                                            data-class-name="{{ classe.nom|lower }}"
+                                            data-class-code="{{ classe.code|lower }}">
+                                        {{ classe.nom }} ({{ classe.code }})
+                                    </option>
+                                {% empty %}
+                                    <option disabled>Aucune classe disponible</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">
+                                Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs classes.
+                            </div>
+                        </div>
+                        
+                        <!-- Selected Classes Preview -->
+                        <div id="selected-classes-preview" class="mb-4" style="display: none;">
+                            <h6 class="fw-semibold mb-2">
+                                <i class="fas fa-check-circle me-1 text-success"></i>Classes sélectionnées
+                            </h6>
+                            <div id="selected-classes-list" class="d-flex flex-wrap gap-2"></div>
+                        </div>
+                        
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i> Enregistrer l'affectation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="text-center">
-            <button type="submit" class="btn btn-success btn-lg">Enregistrer</button>
-            <a href="{% url 'cours:liste_cours' %}" class="btn btn-secondary btn-lg">Annuler</a>
-        </div>
-    </form>
+    </div>
 </div>
 
 <script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+
+    // Search functionality
     document.getElementById('search-classes').addEventListener('input', function() {
         const query = this.value.toLowerCase();
         const options = document.querySelectorAll('#classes option');
 
         options.forEach(option => {
-            const text = option.textContent.toLowerCase();
-            option.style.display = text.includes(query) ? 'block' : 'none';
+            const className = option.getAttribute('data-class-name') || '';
+            const classCode = option.getAttribute('data-class-code') || '';
+            
+            if (className.includes(query) || classCode.includes(query)) {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+            }
         });
     });
+
+    // Selected classes preview
+    const classesSelect = document.getElementById('classes');
+    const previewDiv = document.getElementById('selected-classes-preview');
+    const previewList = document.getElementById('selected-classes-list');
+
+    function updateSelectedClassesPreview() {
+        const selectedOptions = Array.from(classesSelect.selectedOptions);
+        
+        if (selectedOptions.length > 0) {
+            previewList.innerHTML = '';
+            selectedOptions.forEach(option => {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-primary me-1 mb-1';
+                badge.textContent = option.textContent;
+                previewList.appendChild(badge);
+            });
+            previewDiv.style.display = 'block';
+        } else {
+            previewDiv.style.display = 'none';
+        }
+    }
+
+    classesSelect.addEventListener('change', updateSelectedClassesPreview);
+    
+    // Initialize preview on page load
+    updateSelectedClassesPreview();
 </script>
 {% endblock %}

@@ -3,28 +3,148 @@
 {% block title %}Affecter des Cours aux Classes{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mb-4">Affecter des Cours aux Classes</h1>
-    <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="cours" class="form-label">Sélectionnez un Cours :</label>
-            <select id="cours" name="cours" class="form-select">
-                {% for cours in cours_list %}
-                <option value="{{ cours.id }}">{{ cours.nom }}</option>
-                {% endfor %}
-            </select>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">
+                    <i class="fas fa-link me-3"></i>
+                    Affecter des Cours aux Classes
+                </h1>
+                <p class="page-subtitle">
+                    Assignez des cours à plusieurs classes en une seule fois
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'cours:liste_cours' %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+                </a>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="classes" class="form-label">Sélectionnez les Classes :</label>
-            <select id="classes" name="classes" class="form-select" multiple>
-                {% for classe in classes %}
-                <option value="{{ classe.id }}">{{ classe.nom }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <button type="submit" class="btn btn-primary">Affecter</button>
-        <a href="{% url 'cours:liste_cours' %}" class="btn btn-secondary">Annuler</a>
-    </form>
+    </div>
 </div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-transparent border-0 text-center py-4">
+                    <div class="mb-3">
+                        <i class="fas fa-link fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Affectation en lot</h4>
+                    <p class="text-muted mb-0">Sélectionnez un cours et les classes à affecter</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Course Selection -->
+                        <div class="mb-4">
+                            <label for="cours" class="form-label fw-semibold">
+                                <i class="fas fa-book me-1"></i>Sélectionnez un cours *
+                            </label>
+                            <select id="cours" name="cours" class="form-select" required>
+                                <option value="" selected disabled>Choisissez un cours</option>
+                                {% for cours in cours_list %}
+                                    <option value="{{ cours.id }}">{{ cours.nom }} ({{ cours.code|default:"N/A" }})</option>
+                                {% empty %}
+                                    <option disabled>Aucun cours disponible</option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">
+                                Veuillez sélectionner un cours.
+                            </div>
+                        </div>
+                        
+                        <!-- Classes Selection -->
+                        <div class="mb-4">
+                            <label for="classes" class="form-label fw-semibold">
+                                <i class="fas fa-users me-1"></i>Sélectionnez les classes *
+                            </label>
+                            <select id="classes" name="classes" class="form-select" multiple size="8" required>
+                                {% for classe in classes %}
+                                    <option value="{{ classe.id }}">{{ classe.nom }} ({{ classe.code }})</option>
+                                {% empty %}
+                                    <option disabled>Aucune classe disponible</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">
+                                Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs classes.
+                            </div>
+                            <div class="invalid-feedback">
+                                Veuillez sélectionner au moins une classe.
+                            </div>
+                        </div>
+                        
+                        <!-- Selected Classes Preview -->
+                        <div id="selected-classes-preview" class="mb-4" style="display: none;">
+                            <h6 class="fw-semibold mb-2">
+                                <i class="fas fa-check-circle me-1 text-success"></i>Classes sélectionnées
+                            </h6>
+                            <div id="selected-classes-list" class="d-flex flex-wrap gap-2"></div>
+                        </div>
+                        
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'cours:liste_cours' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i> Affecter le cours
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+
+    // Selected classes preview
+    const classesSelect = document.getElementById('classes');
+    const previewDiv = document.getElementById('selected-classes-preview');
+    const previewList = document.getElementById('selected-classes-list');
+
+    function updateSelectedClassesPreview() {
+        const selectedOptions = Array.from(classesSelect.selectedOptions);
+        
+        if (selectedOptions.length > 0) {
+            previewList.innerHTML = '';
+            selectedOptions.forEach(option => {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-primary me-1 mb-1';
+                badge.textContent = option.textContent;
+                previewList.appendChild(badge);
+            });
+            previewDiv.style.display = 'block';
+        } else {
+            previewDiv.style.display = 'none';
+        }
+    }
+
+    classesSelect.addEventListener('change', updateSelectedClassesPreview);
+    
+    // Initialize preview on page load
+    updateSelectedClassesPreview();
+</script>
 {% endblock %}

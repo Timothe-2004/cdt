@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Page non trouvée - Cahier de Texte Universitaire{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100 py-5">
+        <div class="col-lg-6 text-center">
+            <div class="error-content">
+                <div class="error-icon mb-4">
+                    <i class="fas fa-exclamation-triangle fa-5x text-warning"></i>
+                </div>
+                
+                <h1 class="display-1 fw-bold text-primary mb-3">404</h1>
+                <h2 class="h3 fw-bold mb-3">Page non trouvée</h2>
+                <p class="lead text-muted mb-4">
+                    Désolé, la page que vous recherchez n'existe pas ou a été déplacée.
+                </p>
+                
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{% url 'users:dashboard' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home me-2"></i> Retour à l'accueil
+                    </a>
+                    <button onclick="history.back()" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i> Page précédente
+                    </button>
+                </div>
+                
+                <div class="mt-5">
+                    <h5 class="fw-bold mb-3">Que pouvez-vous faire ?</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="suggestion-card p-3">
+                                <i class="fas fa-search fa-2x text-primary mb-2"></i>
+                                <h6 class="fw-bold">Rechercher</h6>
+                                <small class="text-muted">Utilisez la barre de recherche</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="suggestion-card p-3">
+                                <i class="fas fa-sitemap fa-2x text-success mb-2"></i>
+                                <h6 class="fw-bold">Navigation</h6>
+                                <small class="text-muted">Utilisez le menu principal</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="suggestion-card p-3">
+                                <i class="fas fa-headset fa-2x text-info mb-2"></i>
+                                <h6 class="fw-bold">Support</h6>
+                                <small class="text-muted">Contactez l'administrateur</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .min-vh-100 {
+        min-height: 100vh;
+    }
+    
+    .error-content {
+        padding: 2rem;
+        background: white;
+        border-radius: 1.5rem;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .error-icon {
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-10px);
+        }
+        60% {
+            transform: translateY(-5px);
+        }
+    }
+    
+    .suggestion-card {
+        background: rgba(37, 99, 235, 0.05);
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(37, 99, 235, 0.1);
+    }
+    
+    .suggestion-card:hover {
+        background: rgba(37, 99, 235, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .display-1 {
+        font-size: 6rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    @media (max-width: 768px) {
+        .display-1 {
+            font-size: 4rem;
+        }
+        
+        .error-content {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}

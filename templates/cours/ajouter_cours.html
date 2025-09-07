@@ -3,65 +3,262 @@
 {% block title %}Ajouter un Cours - Cahier de Texte Universitaire{% endblock %}
 
 {% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">
+                    <i class="fas fa-plus-circle me-3"></i>
+                    Ajouter un Cours
+                </h1>
+                <p class="page-subtitle">
+                    Créez un nouveau cours et configurez ses paramètres
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'cours:liste_cours' %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container">
-    <h1 class="mb-4">Ajouter un Cours</h1>
-    <div class="card">
-        <div class="card-body">
-            <form method="post" id="coursForm">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Enregistrer</button>
-                <a href="{% url 'cours:liste_cours' %}" class="btn btn-secondary">Annuler</a>
-            </form>
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-transparent border-0 text-center py-4">
+                    <div class="mb-3">
+                        <i class="fas fa-book fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Informations du cours</h4>
+                    <p class="text-muted mb-0">Remplissez les détails de votre nouveau cours</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" id="coursForm" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="id_nom" class="form-label fw-semibold">
+                                    <i class="fas fa-book me-1"></i>Nom du cours *
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="id_nom" 
+                                       name="nom" 
+                                       placeholder="Ex: Algorithmique et Programmation"
+                                       required>
+                                <div class="invalid-feedback">
+                                    Veuillez saisir le nom du cours.
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <label for="id_code" class="form-label fw-semibold">
+                                    <i class="fas fa-hashtag me-1"></i>Code du cours
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="id_code" 
+                                       name="code" 
+                                       placeholder="Ex: ALG-101">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="id_description" class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-1"></i>Description
+                            </label>
+                            <textarea class="form-control" 
+                                      id="id_description" 
+                                      name="description" 
+                                      rows="4" 
+                                      placeholder="Décrivez le contenu et les objectifs du cours..."></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-4">
+                                <label for="id_volume_horaire_total" class="form-label fw-semibold">
+                                    <i class="fas fa-clock me-1"></i>Volume horaire (h) *
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="id_volume_horaire_total" 
+                                       name="volume_horaire_total" 
+                                       placeholder="30"
+                                       min="1"
+                                       required>
+                                <div class="invalid-feedback">
+                                    Veuillez saisir le volume horaire.
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4 mb-4">
+                                <label for="id_credits" class="form-label fw-semibold">
+                                    <i class="fas fa-star me-1"></i>Crédits *
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="id_credits" 
+                                       name="credits" 
+                                       placeholder="3"
+                                       min="1"
+                                       required>
+                                <div class="invalid-feedback">
+                                    Veuillez saisir le nombre de crédits.
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4 mb-4">
+                                <label for="id_enseignant" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-1"></i>Enseignant *
+                                </label>
+                                <select class="form-select" id="id_enseignant" name="enseignant" required>
+                                    <option value="" selected disabled>Choisir un enseignant</option>
+                                    <!-- Options will be populated by Django -->
+                                </select>
+                                <div class="invalid-feedback">
+                                    Veuillez sélectionner un enseignant.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="departement-select" class="form-label fw-semibold">
+                                    <i class="fas fa-building me-1"></i>Département *
+                                </label>
+                                <select class="form-select" id="departement-select" required>
+                                    <option value="" selected disabled>Choisir un département</option>
+                                    <!-- Options will be populated by Django -->
+                                </select>
+                                <div class="invalid-feedback">
+                                    Veuillez sélectionner un département.
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <label for="formation-select" class="form-label fw-semibold">
+                                    <i class="fas fa-graduation-cap me-1"></i>Formation *
+                                </label>
+                                <select class="form-select" id="formation-select" name="formation" required>
+                                    <option value="" selected disabled>Sélectionnez d'abord un département</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Veuillez sélectionner une formation.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="classe-select" class="form-label fw-semibold">
+                                <i class="fas fa-users me-1"></i>Classes concernées
+                            </label>
+                            <select class="form-select" id="classe-select" name="classes" multiple>
+                                <option value="" selected disabled>Sélectionnez d'abord une formation</option>
+                            </select>
+                            <div class="form-text">
+                                Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs classes.
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'cours:liste_cours' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i> Enregistrer le cours
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+
     // Fetch formations dynamically based on the selected department
     const departmentSelect = document.getElementById('departement-select');
+    const formationSelect = document.getElementById('formation-select');
+    const classSelect = document.getElementById('classe-select');
 
     departmentSelect.addEventListener('change', function() {
         const departmentId = this.value;
+        
+        if (departmentId) {
+            // Show loading state
+            formationSelect.innerHTML = '<option value="" selected disabled>Chargement...</option>';
+            classSelect.innerHTML = '<option value="" selected disabled>Sélectionnez d\'abord une formation</option>';
 
-        fetch(`/cours/get_formations_by_departement/?departement_id=${departmentId}`)
-            .then(response => response.json())
-            .then(data => {
-                const formationSelect = document.getElementById('formation-select');
-                formationSelect.innerHTML = '<option value="" selected disabled>Sélectionnez une formation</option>';
-                data.forEach(formation => {
-                    const option = document.createElement('option');
-                    option.value = formation.id;
-                    option.textContent = formation.nom;
-                    formationSelect.appendChild(option);
+            fetch(`/cours/get_formations_by_departement/?departement_id=${departmentId}`)
+                .then(response => response.json())
+                .then(data => {
+                    formationSelect.innerHTML = '<option value="" selected disabled>Sélectionnez une formation</option>';
+                    data.forEach(formation => {
+                        const option = document.createElement('option');
+                        option.value = formation.id;
+                        option.textContent = formation.nom;
+                        formationSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    formationSelect.innerHTML = '<option value="" selected disabled>Erreur de chargement</option>';
                 });
-            });
+        } else {
+            formationSelect.innerHTML = '<option value="" selected disabled>Sélectionnez d\'abord un département</option>';
+            classSelect.innerHTML = '<option value="" selected disabled>Sélectionnez d\'abord une formation</option>';
+        }
     });
 
     // Fetch classes dynamically based on the selected formation
-    const formationSelect = document.getElementById('formation-select');
-
     formationSelect.addEventListener('change', function() {
         const formationId = this.value;
+        
+        if (formationId) {
+            // Show loading state
+            classSelect.innerHTML = '<option value="" selected disabled>Chargement...</option>';
 
-        fetch(`/cours/get_classes_by_formation/?formation_id=${formationId}`)
-            .then(response => response.json())
-            .then(data => {
-                const classSelect = document.getElementById('classe-select');
-                classSelect.innerHTML = '<option value="" selected disabled>Sélectionnez une classe</option>';
-                data.forEach(classe => {
-                    const option = document.createElement('option');
-                    option.value = classe.id;
-                    option.textContent = classe.nom;
-                    classSelect.appendChild(option);
+            fetch(`/cours/get_classes_by_formation/?formation_id=${formationId}`)
+                .then(response => response.json())
+                .then(data => {
+                    classSelect.innerHTML = '<option value="" selected disabled>Sélectionnez une ou plusieurs classes</option>';
+                    data.forEach(classe => {
+                        const option = document.createElement('option');
+                        option.value = classe.id;
+                        option.textContent = classe.nom;
+                        classSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    classSelect.innerHTML = '<option value="" selected disabled>Erreur de chargement</option>';
                 });
-            });
+        } else {
+            classSelect.innerHTML = '<option value="" selected disabled>Sélectionnez d\'abord une formation</option>';
+        }
     });
 </script>
-
-<style>
-    .form-select, .form-control {
-        margin-bottom: 1rem;
-    }
-</style>
 {% endblock %}

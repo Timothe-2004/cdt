@@ -29,12 +29,15 @@ def liste_seances(request):
 @login_required
 def planifier_seance(request, cours_id=None):
     cours = None
+    # Supporter cours_id via query param si non fourni en URL
+    if not cours_id:
+        cours_id = request.GET.get('cours_id')
     if cours_id:
         cours = get_object_or_404(Cours, id=cours_id)
         # Vérifier que l'utilisateur est l'enseignant du cours
         if request.user != cours.enseignant and not request.user.is_superuser:
             messages.error(request, "Vous n'êtes pas autorisé à planifier des séances pour ce cours.")
-            return redirect('liste_cours')
+            return redirect('cours:liste_cours')
     
     if request.method == 'POST':
         form = SeanceForm(request.POST, user=request.user)
@@ -122,7 +125,8 @@ def enseignant_seances(request):
         seances = Seance.objects.filter(enseignant=request.user).order_by('-date_seance')
     return render(request, 'seances/enseignant_seances.html', {
         'seances': seances,
-        'redirect_url': 'http://127.0.0.1:8000/users/dashboard/'
+        'redirect_url': 'http://127.0.0.1:8000/users/dashboard/',
+        'cours_id': cours_id,
     })
 
 class SeanceViewSet(viewsets.ModelViewSet):

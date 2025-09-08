@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Ajouter un Cours - Cahier de Texte Universitaire{% endblock %}
+{% block title %}Ajouter un Cours{% endblock %}
 
 {% block content %}
 <!-- Page Header -->
@@ -40,47 +40,28 @@
                 <div class="card-body p-4">
                     <form method="post" id="coursForm" class="needs-validation" novalidate>
                         {% csrf_token %}
-                        
                         {% for field in form %}
                             <div class="mb-4">
                                 <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
                                     {% if field.name == 'nom' %}
                                         <i class="fas fa-book me-1"></i>Nom du cours *
                                     {% elif field.name == 'code' %}
-                                        <i class="fas fa-hashtag me-1"></i>Code du cours
-                                    {% elif field.name == 'description' %}
-                                        <i class="fas fa-align-left me-1"></i>Description
+                                        <i class="fas fa-hashtag me-1"></i>Code du cours *
                                     {% elif field.name == 'volume_horaire_total' %}
-                                        <i class="fas fa-clock me-1"></i>Volume horaire (h) *
-                                    {% elif field.name == 'credits' %}
-                                        <i class="fas fa-star me-1"></i>Crédits *
+                                        <i class="fas fa-clock me-1"></i>Volume horaire total *
+                                    {% elif field.name == 'volume_theorie' %}
+                                        <i class="fas fa-chalkboard me-1"></i>Volume théorie *
+                                    {% elif field.name == 'volume_tp' %}
+                                        <i class="fas fa-flask me-1"></i>Volume TP *
+                                    {% elif field.name == 'volume_td' %}
+                                        <i class="fas fa-tasks me-1"></i>Volume TD *
                                     {% elif field.name == 'enseignant' %}
-                                        <i class="fas fa-user me-1"></i>Enseignant *
-                                    {% elif field.name == 'formation' %}
-                                        <i class="fas fa-graduation-cap me-1"></i>Formation *
-                                    {% elif field.name == 'classes' %}
-                                        <i class="fas fa-users me-1"></i>Classes concernées
+                                        <i class="fas fa-user-tie me-1"></i>Enseignant *
                                     {% else %}
                                         {{ field.label }}
                                     {% endif %}
                                 </label>
-                                
-                                {% if field.name == 'description' %}
-                                    <textarea class="form-control" 
-                                              id="{{ field.id_for_label }}" 
-                                              name="{{ field.name }}" 
-                                              rows="4" 
-                                              placeholder="Décrivez le contenu et les objectifs du cours...">{{ field.value|default:"" }}</textarea>
-                                {% elif field.name == 'classes' %}
-                                    <select class="form-select" id="{{ field.id_for_label }}" name="{{ field.name }}" multiple>
-                                        <option value="" selected disabled>Sélectionnez d'abord une formation</option>
-                                    </select>
-                                    <div class="form-text">
-                                        Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs classes.
-                                    </div>
-                                {% else %}
-                                    {{ field }}
-                                {% endif %}
+                                {{ field }}
                                 
                                 {% if field.errors %}
                                     <div class="invalid-feedback d-block">
@@ -117,7 +98,7 @@
         'use strict';
         window.addEventListener('load', function() {
             var forms = document.getElementsByClassName('needs-validation');
-            var validation = Array.prototype.filter.call(forms, function(form) {
+            Array.prototype.forEach.call(forms, function(form) {
                 form.addEventListener('submit', function(event) {
                     if (form.checkValidity() === false) {
                         event.preventDefault();
@@ -128,71 +109,5 @@
             });
         }, false);
     })();
-
-    // Fetch formations dynamically based on the selected department
-    const departmentSelect = document.getElementById('departement-select');
-    const formationSelect = document.getElementById('formation-select');
-    const classSelect = document.getElementById('classes');
-
-    if (departmentSelect) {
-        departmentSelect.addEventListener('change', function() {
-            const departmentId = this.value;
-            
-            if (departmentId) {
-                // Show loading state
-                formationSelect.innerHTML = '<option value="" selected disabled>Chargement...</option>';
-                classSelect.innerHTML = '<option value="" selected disabled>Sélectionnez d\'abord une formation</option>';
-
-                fetch(`/cours/get_formations_by_departement/?departement_id=${departmentId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        formationSelect.innerHTML = '<option value="" selected disabled>Sélectionnez une formation</option>';
-                        data.forEach(formation => {
-                            const option = document.createElement('option');
-                            option.value = formation.id;
-                            option.textContent = formation.nom;
-                            formationSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        formationSelect.innerHTML = '<option value="" selected disabled>Erreur de chargement</option>';
-                    });
-            } else {
-                formationSelect.innerHTML = '<option value="" selected disabled>Sélectionnez d\'abord un département</option>';
-                classSelect.innerHTML = '<option value="" selected disabled>Sélectionnez d\'abord une formation</option>';
-            }
-        });
-    }
-
-    // Fetch classes dynamically based on the selected formation
-    if (formationSelect) {
-        formationSelect.addEventListener('change', function() {
-            const formationId = this.value;
-            
-            if (formationId) {
-                // Show loading state
-                classSelect.innerHTML = '<option value="" selected disabled>Chargement...</option>';
-
-                fetch(`/cours/get_classes_by_formation/?formation_id=${formationId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        classSelect.innerHTML = '<option value="" selected disabled>Sélectionnez une ou plusieurs classes</option>';
-                        data.forEach(classe => {
-                            const option = document.createElement('option');
-                            option.value = classe.id;
-                            option.textContent = classe.nom;
-                            classSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        classSelect.innerHTML = '<option value="" selected disabled>Erreur de chargement</option>';
-                    });
-            } else {
-                classSelect.innerHTML = '<option value="" selected disabled>Sélectionnez d\'abord une formation</option>';
-            }
-        });
-    }
 </script>
 {% endblock %}

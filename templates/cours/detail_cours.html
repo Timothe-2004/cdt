@@ -3,42 +3,254 @@
 {% block title %}Détail du Cours - {{ cours.nom }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mb-4">{{ cours.nom }}</h1>
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h3>{{ cours.nom }}</h3>
-                </div>
-                <div class="card-body">
-                    <p><strong>Description :</strong> {{ cours.description }}</p>
-                    <p><strong>Volume horaire :</strong> {{ cours.volume_horaire_total }}h</p>
-                    <p><strong>Crédits :</strong> {{ cours.credits }}</p>
-                    <p><strong>Classes associées au cours :</strong>
-                        {% for classe in cours.classes.all %}
-                            {{ classe.nom }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </p>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">
+                    <i class="fas fa-book me-3"></i>
+                    {{ cours.nom }}
+                </h1>
+                <p class="page-subtitle">
+                    Détails et informations du cours
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="btn-group" role="group">
+                    <a href="{% url 'seances:enseignant_seances' %}?cours_id={{ cours.id }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-calendar-alt me-2"></i> Voir les séances
+                    </a>
+                    <a href="{% url 'cours:liste_cours' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i> Retour
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h5>Informations</h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Entité :</strong> {{ cours.entite.nom }}</p>
-                    <p><strong>Formation :</strong> {{ cours.formations.first.nom }}</p>
-                    <p><strong>Enseignant :</strong> {{ cours.enseignant.get_full_name|default:cours.enseignant.username }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="mt-4">
-        <a href="{% url 'seances:enseignant_seances' %}?cours_id={{ cours.id }}" class="btn btn-primary">Voir les séances de ce cours</a>
-        <a href="http://127.0.0.1:8000/users/dashboard/" class="btn btn-secondary mt-3">Retour à la liste</a>
     </div>
 </div>
+
+<div class="container">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Course Overview -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h4 class="fw-bold mb-0">
+                        <i class="fas fa-info-circle me-2 text-primary"></i>
+                        Aperçu du cours
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if cours.description %}
+                        <div class="mb-4">
+                            <h6 class="fw-semibold text-muted mb-2">Description</h6>
+                            <p class="mb-0">{{ cours.description }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="icon-wrapper me-3">
+                                    <i class="fas fa-clock fa-2x text-success"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-semibold mb-0">Volume horaire</h6>
+                                    <p class="text-muted mb-0">{{ cours.volume_horaire_total }} heures</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="icon-wrapper me-3">
+                                    <i class="fas fa-star fa-2x text-warning"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-semibold mb-0">Crédits</h6>
+                                    <p class="text-muted mb-0">{{ cours.credits }} crédits</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Classes -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h4 class="fw-bold mb-0">
+                        <i class="fas fa-users me-2 text-primary"></i>
+                        Classes concernées
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if cours.classes.all %}
+                        <div class="row">
+                            {% for classe in cours.classes.all %}
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="class-card p-3 border rounded-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="class-icon me-3">
+                                                <i class="fas fa-users fa-2x text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-semibold mb-0">{{ classe.nom }}</h6>
+                                                <small class="text-muted">{{ classe.code }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">Aucune classe assignée à ce cours</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Course Info -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fas fa-info me-2 text-primary"></i>
+                        Informations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-item mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-hashtag me-3 text-muted"></i>
+                            <div>
+                                <h6 class="fw-semibold mb-0">Code</h6>
+                                <p class="text-muted mb-0">{{ cours.code|default:"Non défini" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-building me-3 text-muted"></i>
+                            <div>
+                                <h6 class="fw-semibold mb-0">Entité</h6>
+                                <p class="text-muted mb-0">{{ cours.entite.nom }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-graduation-cap me-3 text-muted"></i>
+                            <div>
+                                <h6 class="fw-semibold mb-0">Formation</h6>
+                                <p class="text-muted mb-0">{{ cours.formations.first.nom|default:"Non définie" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher Info -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fas fa-chalkboard-teacher me-2 text-primary"></i>
+                        Enseignant
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="teacher-avatar me-3">
+                            <i class="fas fa-user-circle fa-3x text-primary"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-semibold mb-0">{{ cours.enseignant.get_full_name|default:cours.enseignant.username }}</h6>
+                            <p class="text-muted mb-0">{{ cours.enseignant.email|default:"Email non disponible" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fas fa-bolt me-2 text-primary"></i>
+                        Actions rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'seances:enseignant_seances' %}?cours_id={{ cours.id }}" class="btn btn-primary">
+                            <i class="fas fa-calendar-alt me-2"></i> Voir les séances
+                        </a>
+                        <a href="{% url 'cours:affecter_cours_classe' cours.id %}" class="btn btn-outline-success">
+                            <i class="fas fa-plus me-2"></i> Affecter des classes
+                        </a>
+                        <a href="{% url 'cours:modifier_cours' cours.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-2"></i> Modifier le cours
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .icon-wrapper {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(37, 99, 235, 0.1);
+        border-radius: 50%;
+    }
+    
+    .class-card {
+        background: rgba(37, 99, 235, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .class-card:hover {
+        background: rgba(37, 99, 235, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .class-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(37, 99, 235, 0.1);
+        border-radius: 50%;
+    }
+    
+    .teacher-avatar {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .info-item {
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+</style>
 {% endblock %}

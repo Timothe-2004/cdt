@@ -1,78 +1,188 @@
-<!-- templates/cours/liste_cours.html -->
 {% extends 'base.html' %}
+
 {% block title %}Mes Cours - Cahier de Texte Universitaire{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">
-            <i class="fas fa-chalkboard-teacher text-primary me-2"></i>
-            Mes Cours
-        </h1>
-        <a href="{% url 'cours:ajouter_cours'  %}" class="btn btn-primary">
-            <i class="fas fa-plus me-1"></i> Ajouter un cours
-        </a>
-    </div>
-    <div class="card shadow-sm">
-        <div class="card-header bg-light">
-            <form method="get" class="d-flex">
-                <input class="form-control me-2" type="search" name="q" placeholder="Rechercher un cours..." aria-label="Search">
-                <button class="btn btn-outline-primary" type="submit">
-                    <i class="fas fa-search"></i>
-                </button>
-            </form>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Titre</th>
-                            <th>Enseignant</th>
-                            <th>Classes</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cours in cours %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'cours:detail_cours' cours.id %}" class="text-decoration-none fw-bold">
-                                    {{ cours.nom }}
-                                </a>
-                            </td>
-                            <td>{{ cours.enseignant.get_full_name|default:cours.enseignant.username }}</td>
-                            <td>
-                                {% for classe in cours.classes.all %}
-                                    <span class="badge bg-secondary">{{ classe.code }}</span>
-                                {% empty %}
-                                    <span class="text-muted">Aucune classe</span>
-                                {% endfor %}
-                            </td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <a href="{% url 'cours:affecter_cours_classe' cours.id %}" class="btn btn-sm btn-outline-primary" title="Affecter à des classes">
-                                        <i class="fas fa-plus"></i>
-                                    </a>
-                                    <a href="{% url 'cours:supprimer_cours' cours.id %}" class="btn btn-sm btn-outline-danger" title="Supprimer">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center py-4">
-                                <p class="text-muted mb-0">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Aucun cours disponible pour le moment.
-                                </p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">
+                    <i class="fas fa-chalkboard-teacher me-3"></i>
+                    Mes Cours
+                </h1>
+                <p class="page-subtitle">
+                    Gérez tous vos cours et séances
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'cours:ajouter_cours' %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-plus me-2"></i> Ajouter un cours
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+<div class="container">
+    <!-- Search and Filters -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-3">
+                    <form method="get" class="d-flex gap-2">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input class="form-control border-start-0" type="search" name="q" placeholder="Rechercher un cours..." value="{{ request.GET.q }}" aria-label="Search">
+                        </div>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search me-1"></i> Rechercher
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-3 text-center">
+                    <div class="stats-card">
+                        <div class="stats-number">{{ cours|length }}</div>
+                        <div class="stats-label">Cours au total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Courses List -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            {% if cours %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="border-0 ps-4">
+                                    <i class="fas fa-book me-2 text-primary"></i>Cours
+                                </th>
+                                <th class="border-0">
+                                    <i class="fas fa-chalkboard-teacher me-2 text-primary"></i>Enseignant
+                                </th>
+                                <th class="border-0">
+                                    <i class="fas fa-users me-2 text-primary"></i>Classes
+                                </th>
+                                <th class="border-0 text-center">
+                                    <i class="fas fa-cogs me-2 text-primary"></i>Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cours in cours %}
+                            <tr class="border-bottom">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="course-icon me-3">
+                                            <i class="fas fa-book fa-2x text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'cours:detail_cours' cours.id %}" class="text-decoration-none fw-bold text-dark">
+                                                {{ cours.nom }}
+                                            </a>
+                                            <br>
+                                            <small class="text-muted">{{ cours.code|default:"N/A" }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar me-2">
+                                            <i class="fas fa-user-circle fa-lg text-success"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ cours.enseignant.get_full_name|default:cours.enseignant.username }}</div>
+                                            <small class="text-muted">{{ cours.enseignant.email|default:"" }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if cours.classes.all %}
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% for classe in cours.classes.all %}
+                                                <span class="badge bg-secondary">{{ classe.code }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">
+                                            <i class="fas fa-exclamation-circle me-1"></i>Aucune classe
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'cours:detail_cours' cours.id %}" class="btn btn-sm btn-outline-primary" title="Voir les détails">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'cours:affecter_cours_classe' cours.id %}" class="btn btn-sm btn-outline-success" title="Affecter à des classes">
+                                            <i class="fas fa-users"></i>
+                                        </a>
+                                        <a href="{% url 'cours:supprimer_cours' cours.id %}" class="btn btn-sm btn-outline-danger" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce cours ?');">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-book fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">Aucun cours trouvé</h4>
+                    <p class="text-muted mb-4">
+                        {% if request.GET.q %}
+                            Aucun cours ne correspond à votre recherche "{{ request.GET.q }}".
+                        {% else %}
+                            Aucun cours n'a encore été créé.
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'cours:ajouter_cours' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i> Créer le premier cours
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .course-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(37, 99, 235, 0.1);
+        border-radius: 50%;
+    }
+    
+    .user-avatar {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 50%;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(37, 99, 235, 0.02);
+    }
+</style>
 {% endblock %}
